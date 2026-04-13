@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "locale": "العربية",
+    "direction": "rtl",
+    "defaultTitle": "Xmedia — مجلة ثقافية",
+    "defaultDescription": "مجلة رقمية راقية تُعنى بالثقافة والفنون والمجتمع بحساسية تحريرية عصرية وأنيقة."
+  },
+  "nav": {
+    "culture": "ثقافة",
+    "arts": "فنون",
+    "society": "مجتمع",
+    "travel": "سفر",
+    "fashion": "موضة",
+    "readMore": "اقرأ المزيد",
+    "backToHome": "العودة إلى الصفحة الرئيسية",
+    "latestIssue": "آخر عدد"
+  },
+  "home": {
+    "featuredLabel": "مميّز",
+    "latestArticles": "أحدث المقالات",
+    "editorsPickLabel": "اختيار المحرر",
+    "trendingLabel": "الأكثر تداولاً"
+  },
+  "article": {
+    "by": "بقلم",
+    "minRead": "دق قراءة",
+    "sharesLabel": "مشاركة",
+    "likesLabel": "إعجاب",
+    "commentsLabel": "تعليقات",
+    "addCommentPlaceholder": "شاركي رأيك…",
+    "submitComment": "إرسال التعليق",
+    "relatedArticles": "مقالات ذات صلة",
+    "publishedOn": "نُشر في",
+    "comments": {
+      "title": "التعليقات",
+      "count": "{{count}} تعليق"
+    }
+  },
+  "footer": {
+    "tagline": "قصصٌ جوهرية، تُروى بأناقة.",
+    "sections": {
+      "editorial": "التحرير",
+      "about": "من نحن",
+      "subscribe": "الاشتراك",
+      "contact": "تواصل معنا"
+    },
+    "copyright": "© 2025 Xmedia Magazine. جميع الحقوق محفوظة.",
+    "legal": {
+      "privacy": "الخصوصية",
+      "terms": "الشروط"
+    }
+  }
+}

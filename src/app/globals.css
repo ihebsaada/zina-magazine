@@ -1,0 +1,374 @@
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   XMEDIA MAGAZINE — DESIGN SYSTEM
+   v1.0 — Base éditoriale premium
+   ══════════════════════════════════════════════════════════════════════════════
+
+   Palette : Parchment & Ink (neutre chaud) + Orée (doré rosé) + Encre profonde
+   Typographie : Playfair Display (éditorial) · Inter (corps) · Noto Naskh Arabic
+   Espacement : système basé sur 8px, colonnes max 72ch pour la lecture
+*/
+
+/* ── Variables CSS (Design Tokens) ────────────────────────────────────────── */
+
+:root {
+  /* Familles typographiques */
+  --font-editorial  : var(--font-playfair), "Georgia", "Times New Roman", serif;
+  --font-body       : var(--font-inter), system-ui, sans-serif;
+  --font-arabic     : var(--font-noto-arabic), "Noto Sans Arabic", system-ui, sans-serif;
+
+  /* ── Palette chromique ─────────────────────────────────────────────────── */
+
+  /* Fond de page — parchemin chaud */
+  --color-parchment : #f8f5f0;
+  --color-paper     : #fdf9f5;
+  --color-paper-alt : #f2ede6;
+
+  /* Encre — texte principal et décoration */
+  --color-ink-950   : #100e0b;
+  --color-ink-900   : #1a1612;
+  --color-ink-800   : #2b2520;
+  --color-ink-700   : #3e3630;
+  --color-ink-600   : #5a5048;
+  --color-ink-500   : #7a6e65;
+  --color-ink-400   : #9e9289;
+  --color-ink-300   : #c0b5ac;
+  --color-ink-200   : #d8d0c8;
+  --color-ink-100   : #ede8e3;
+  --color-ink-050   : #f5f1ec;
+
+  /* Orée — or rosé, signature éditoriale */
+  --color-oree           : #c9a96e;
+  --color-oree-light     : #e2ccaa;
+  --color-oree-pale      : #f0e5d0;
+  --color-oree-dark      : #a07c45;
+
+  /* Rose poudré — accent féminin discret */
+  --color-blush          : #c47f8a;
+  --color-blush-light    : #deb8be;
+  --color-blush-pale     : #f2e5e7;
+
+  /* Sauge — accent naturel */
+  --color-sage           : #7e9b8a;
+  --color-sage-light     : #b5cdbf;
+  --color-sage-pale      : #e6f0eb;
+
+  /* ── Typographie ────────────────────────────────────────────────────────── */
+
+  --text-display   : clamp(2.75rem, 5vw, 4.5rem);   /* Grande une */
+  --text-headline  : clamp(1.75rem, 3vw, 2.75rem);  /* Titre article */
+  --text-subhead   : clamp(1.25rem, 2vw, 1.75rem);  /* Sous-titre */
+  --text-lead      : clamp(1.0625rem, 1.5vw, 1.25rem); /* Chapeau / intro */
+  --text-body      : 1.0625rem;                      /* Corps de texte */
+  --text-caption   : 0.875rem;                       /* Légende */
+  --text-label     : 0.6875rem;                      /* Catégorie / label */
+
+  --leading-tight  : 1.15;
+  --leading-snug   : 1.3;
+  --leading-normal : 1.65;
+  --leading-relaxed: 1.85;
+
+  /* ── Espacement ─────────────────────────────────────────────────────────── */
+
+  --space-1  : 0.25rem;
+  --space-2  : 0.5rem;
+  --space-3  : 0.75rem;
+  --space-4  : 1rem;
+  --space-6  : 1.5rem;
+  --space-8  : 2rem;
+  --space-12 : 3rem;
+  --space-16 : 4rem;
+  --space-24 : 6rem;
+
+  /* ── Conteneurs ─────────────────────────────────────────────────────────── */
+
+  --container-prose : 68ch;          /* Max lecture article */
+  --container-wide  : 1140px;        /* Grille éditoriale */
+  --container-max   : 1320px;        /* Max site */
+
+  /* ── Transitions ────────────────────────────────────────────────────────── */
+
+  --ease-editorial : cubic-bezier(0.25, 0.1, 0.25, 1);
+  --duration-fast  : 180ms;
+  --duration-base  : 280ms;
+}
+
+/* ── Reset & Base ──────────────────────────────────────────────────────────── */
+
+@layer base {
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size           : 16px;
+    text-rendering      : optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior     : smooth;
+    hanging-punctuation : first;
+  }
+
+  body {
+    background-color: var(--color-parchment);
+    color           : var(--color-ink-900);
+    font-family     : var(--font-body);
+    font-size       : var(--text-body);
+    font-weight     : 400;
+    line-height     : var(--leading-normal);
+    min-height      : 100dvh;
+  }
+
+  /* Arabe : police dédiée, espacement lettre reset */
+  [dir="rtl"] body,
+  [dir="rtl"] p,
+  [dir="rtl"] span,
+  [dir="rtl"] li {
+    font-family : var(--font-arabic);
+    letter-spacing: 0;
+    word-spacing  : 0.02em;
+  }
+
+  /* ── Typographie hiérarchique ─────────────────────────────────────────── */
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family : var(--font-editorial);
+    font-weight : 700;
+    line-height : var(--leading-tight);
+    color       : var(--color-ink-950);
+    text-wrap   : balance;
+  }
+
+  /* Titres arabes : Noto Naskh en priorité, Playfair en fallback */
+  [dir="rtl"] h1,
+  [dir="rtl"] h2,
+  [dir="rtl"] h3,
+  [dir="rtl"] h4 {
+    font-family : var(--font-arabic);
+    letter-spacing: 0;
+  }
+
+  h1 { font-size: var(--text-display); }
+  h2 { font-size: var(--text-headline); }
+  h3 { font-size: var(--text-subhead); }
+  h4 { font-size: var(--text-lead); }
+
+  p { max-width: 75ch; }
+
+  a {
+    color          : inherit;
+    text-decoration: none;
+    transition     : color var(--duration-fast) var(--ease-editorial);
+  }
+
+  img, video {
+    max-width : 100%;
+    height    : auto;
+    display   : block;
+  }
+
+  /* Sélection texte — signature de marque */
+  ::selection {
+    background-color: var(--color-oree-pale);
+    color           : var(--color-ink-950);
+  }
+
+  /* Focus accessible et discret */
+  :focus-visible {
+    outline        : 2px solid var(--color-oree);
+    outline-offset : 3px;
+    border-radius  : 2px;
+  }
+}
+
+/* ── Utilitaires typographiques ────────────────────────────────────────────── */
+
+@layer utilities {
+
+  /* Familles */
+  .font-editorial { font-family: var(--font-editorial); }
+  .font-body      { font-family: var(--font-body);      }
+  .font-arabic    { font-family: var(--font-arabic);    }
+
+  /* Label catégorie — style presse */
+  .label-category {
+    font-family   : var(--font-body);
+    font-size     : var(--text-label);
+    font-weight   : 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color         : var(--color-oree);
+  }
+
+  [dir="rtl"] .label-category {
+    font-family   : var(--font-arabic);
+    letter-spacing: 0;
+  }
+
+  /* Chapeau / intro article */
+  .text-lead {
+    font-size  : var(--text-lead);
+    line-height: var(--leading-snug);
+    font-weight: 300;
+    font-style : italic;
+    color      : var(--color-ink-700);
+  }
+
+  [dir="rtl"] .text-lead {
+    font-style : normal;
+  }
+
+  /* Signature auteur */
+  .text-byline {
+    font-family   : var(--font-body);
+    font-size     : var(--text-caption);
+    letter-spacing: 0.06em;
+    color         : var(--color-ink-500);
+  }
+
+  /* ── Conteneurs ─────────────────────────────────────────────────────────── */
+
+  .container-editorial {
+    width    : 100%;
+    max-width: var(--container-wide);
+    margin   : 0 auto;
+    padding  : 0 var(--space-6);
+  }
+
+  @media (min-width: 1024px) {
+    .container-editorial { padding: 0 var(--space-12); }
+  }
+
+  .container-prose {
+    max-width: var(--container-prose);
+    margin   : 0 auto;
+  }
+
+  /* ── Séparateurs éditoriaux ─────────────────────────────────────────────── */
+
+  /* Filet doré fin — séparateur section */
+  .rule-oree {
+    border    : none;
+    border-top: 1px solid var(--color-oree);
+    opacity   : 0.35;
+    margin    : var(--space-8) 0;
+  }
+
+  /* Double filet — 1px + 3px — style magazine classique */
+  .rule-double {
+    border    : none;
+    height    : 5px;
+    background: linear-gradient(
+      to bottom,
+      var(--color-ink-950) 0%,
+      var(--color-ink-950) 1px,
+      transparent 1px,
+      transparent 3px,
+      var(--color-oree) 3px,
+      var(--color-oree) 4px
+    );
+    opacity: 0.7;
+  }
+
+  /* ── Navigation ─────────────────────────────────────────────────────────── */
+
+  /* Lien nav avec soulignement animé */
+  .nav-link {
+    position      : relative;
+    font-size     : var(--text-label);
+    font-weight   : 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color         : var(--color-ink-700);
+    transition    : color var(--duration-fast) var(--ease-editorial);
+  }
+
+  .nav-link::after {
+    content         : '';
+    position        : absolute;
+    inset-inline-start: 0;
+    inset-inline-end  : 0;
+    bottom          : -3px;
+    height          : 1px;
+    background-color: var(--color-oree);
+    transform       : scaleX(0);
+    transform-origin: center;
+    transition      : transform var(--duration-base) var(--ease-editorial);
+  }
+
+  .nav-link:hover,
+  .nav-link[aria-current="page"] {
+    color: var(--color-ink-950);
+  }
+
+  .nav-link:hover::after,
+  .nav-link[aria-current="page"]::after {
+    transform: scaleX(1);
+  }
+
+  /* ── Prose éditoriale (rendu des articles) ──────────────────────────────── */
+
+  .prose-editorial {
+    font-size  : var(--text-body);
+    line-height: var(--leading-relaxed);
+    color      : var(--color-ink-800);
+  }
+
+  .prose-editorial > * + * {
+    margin-top: var(--space-6);
+  }
+
+  .prose-editorial p {
+    text-wrap: pretty;
+  }
+
+  /* Lettrine — première lettre du premier paragraphe */
+  .prose-editorial > p:first-of-type::first-letter {
+    float        : inline-start;
+    font-family  : var(--font-editorial);
+    font-size    : 4.25em;
+    line-height  : 0.78;
+    margin-inline-end  : 0.08em;
+    margin-top   : 0.05em;
+    color        : var(--color-oree);
+    font-weight  : 700;
+  }
+
+  [dir="rtl"] .prose-editorial > p:first-of-type::first-letter {
+    font-family: var(--font-arabic);
+  }
+
+  .prose-editorial blockquote {
+    border-inline-start: 3px solid var(--color-oree);
+    padding-inline-start: var(--space-6);
+    font-style : italic;
+    font-size  : 1.125rem;
+    color      : var(--color-ink-600);
+  }
+
+  [dir="rtl"] .prose-editorial blockquote {
+    font-style: normal;
+  }
+
+  .prose-editorial h2 {
+    font-size  : 1.5rem;
+    margin-top : var(--space-12);
+  }
+
+  .prose-editorial h3 {
+    font-size  : 1.25rem;
+    margin-top : var(--space-8);
+  }
+
+  /* ── Utilitaires d'état / animation ─────────────────────────────────────── */
+
+  .fade-in {
+    animation: fadeIn var(--duration-base) var(--ease-editorial) both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0);   }
+  }
+}

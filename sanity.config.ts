@@ -1,0 +1,30 @@
+import { defineConfig } from 'sanity'
+import { structureTool } from 'sanity/structure'
+import { visionTool } from '@sanity/vision'
+
+import article from './schemas/article'
+import category from './schemas/category'
+import author from './schemas/author'
+import tag from './schemas/tag'
+
+const projectId = process.env.NEXT_PUBLIC_SANITY_PROJECT_ID!
+const dataset = process.env.NEXT_PUBLIC_SANITY_DATASET!
+
+export default defineConfig({
+  name: 'xmedia-magazine',
+  title: 'Xmedia Magazine',
+
+  projectId,
+  dataset,
+
+  basePath: '/studio',
+
+  plugins: [
+    structureTool(),
+    visionTool(),
+  ],
+
+  schema: {
+    types: [article, category, author, tag],
+  },
+})

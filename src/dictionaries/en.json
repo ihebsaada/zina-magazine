@@ -1,0 +1,53 @@
+{
+  "meta": {
+    "locale": "English",
+    "direction": "ltr",
+    "defaultTitle": "Xmedia — Cultural Magazine",
+    "defaultDescription": "A premium digital magazine for culture, arts, and society with a modern, feminine editorial sensibility."
+  },
+  "nav": {
+    "culture": "Culture",
+    "arts": "Arts",
+    "society": "Society",
+    "travel": "Travel",
+    "fashion": "Fashion",
+    "readMore": "Read more",
+    "backToHome": "Back to home",
+    "latestIssue": "Latest issue"
+  },
+  "home": {
+    "featuredLabel": "Featured",
+    "latestArticles": "Latest articles",
+    "editorsPickLabel": "Editor's Pick",
+    "trendingLabel": "Trending"
+  },
+  "article": {
+    "by": "By",
+    "minRead": "min read",
+    "sharesLabel": "Shares",
+    "likesLabel": "Likes",
+    "commentsLabel": "Comments",
+    "addCommentPlaceholder": "Share your thoughts…",
+    "submitComment": "Post comment",
+    "relatedArticles": "Related articles",
+    "publishedOn": "Published on",
+    "comments": {
+      "title": "Comments",
+      "count": "{{count}} comments"
+    }
+  },
+  "footer": {
+    "tagline": "Stories that matter. Told with elegance.",
+    "sections": {
+      "editorial": "Editorial",
+      "about": "About",
+      "subscribe": "Subscribe",
+      "contact": "Contact"
+    },
+    "copyright": "© 2025 Xmedia Magazine. All rights reserved.",
+    "legal": {
+      "privacy": "Privacy",
+      "terms": "Terms"
+    }
+  }
+}
