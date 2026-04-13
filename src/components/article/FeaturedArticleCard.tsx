@@ -1,24 +1,34 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { type Locale } from '@/lib/i18n'
-import type { ArticleCard as ArticleCardType } from '@/types/magazine'
-import { ArticleMeta } from './ArticleMeta'
-import { Badge } from '@/components/ui/Badge'
-import { cn } from '@/lib/utils'
+import Image from "next/image";
+import Link from "next/link";
+import { type Locale } from "@/lib/i18n";
+import type { ArticleCard as ArticleCardType } from "@/types/magazine";
+import { ArticleMeta } from "./ArticleMeta";
+import { Badge } from "@/components/ui/Badge";
+import { cn } from "@/lib/utils";
 
 interface FeaturedArticleCardProps {
-  article: ArticleCardType
-  locale: Locale
-  dict: any
-  className?: string
+  article: ArticleCardType;
+  locale: Locale;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dict: any;
+  className?: string;
 }
 
-export function FeaturedArticleCard({ article, locale, dict, className }: FeaturedArticleCardProps) {
+export function FeaturedArticleCard({
+  article,
+  locale,
+  dict,
+  className,
+}: FeaturedArticleCardProps) {
   return (
-    <article className={cn('group grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center', className)}>
-      
+    <article
+      className={cn(
+        "group grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16 items-center",
+        className,
+      )}
+    >
       {/* ── Image (Large) ─────────────────────────────────────────────── */}
-      <Link 
+      <Link
         href={`/${locale}/articles/${article.slug}`}
         className="block lg:col-span-7 xl:col-span-8 overflow-hidden aspect-[4/3] lg:aspect-[16/9] bg-[var(--color-ink-100)] relative"
       >
@@ -50,7 +60,7 @@ export function FeaturedArticleCard({ article, locale, dict, className }: Featur
           {article.excerpt}
         </p>
 
-        <ArticleMeta 
+        <ArticleMeta
           author={article.author}
           publishedAt={article.publishedAt}
           readingTime={article.readingTime}
@@ -59,7 +69,6 @@ export function FeaturedArticleCard({ article, locale, dict, className }: Featur
           className="mt-8"
         />
       </div>
-
     </article>
-  )
+  );
 }

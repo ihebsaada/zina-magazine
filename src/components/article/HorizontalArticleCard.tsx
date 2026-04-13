@@ -1,23 +1,33 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { type Locale } from '@/lib/i18n'
-import type { ArticleCard as ArticleCardType } from '@/types/magazine'
-import { ArticleMeta } from './ArticleMeta'
-import { cn } from '@/lib/utils'
+import Image from "next/image";
+import Link from "next/link";
+import { type Locale } from "@/lib/i18n";
+import type { ArticleCard as ArticleCardType } from "@/types/magazine";
+import { ArticleMeta } from "./ArticleMeta";
+import { cn } from "@/lib/utils";
 
 interface HorizontalArticleCardProps {
-  article: ArticleCardType
-  locale: Locale
-  dict: any
-  className?: string
+  article: ArticleCardType;
+  locale: Locale;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  dict: any;
+  className?: string;
 }
 
-export function HorizontalArticleCard({ article, locale, dict, className }: HorizontalArticleCardProps) {
+export function HorizontalArticleCard({
+  article,
+  locale,
+  dict,
+  className,
+}: HorizontalArticleCardProps) {
   return (
-    <article className={cn('group flex flex-col sm:flex-row gap-6 lg:gap-8 items-start', className)}>
-      
+    <article
+      className={cn(
+        "group flex flex-col sm:flex-row gap-6 lg:gap-8 items-start",
+        className,
+      )}
+    >
       {/* ── Image (Small/Medium) ────────────────────────────────────────── */}
-      <Link 
+      <Link
         href={`/${locale}/articles/${article.slug}`}
         className="block w-full sm:w-48 md:w-64 shrink-0 overflow-hidden aspect-[4/3] sm:aspect-square bg-[var(--color-ink-100)] relative"
       >
@@ -32,7 +42,7 @@ export function HorizontalArticleCard({ article, locale, dict, className }: Hori
 
       {/* ── Contenu ────────────────────────────────────────────────────── */}
       <div className="flex flex-col items-start py-2 sm:py-4">
-        <Link 
+        <Link
           href={`/${locale}/categories/${article.category.slug}`}
           className="label-category text-[var(--color-oree)] hover:text-[var(--color-oree-dark)] mb-2 transition-colors"
         >
@@ -49,7 +59,7 @@ export function HorizontalArticleCard({ article, locale, dict, className }: Hori
           {article.excerpt}
         </p>
 
-        <ArticleMeta 
+        <ArticleMeta
           author={article.author}
           publishedAt={article.publishedAt}
           readingTime={article.readingTime}
@@ -57,7 +67,6 @@ export function HorizontalArticleCard({ article, locale, dict, className }: Hori
           dict={dict}
         />
       </div>
-
     </article>
-  )
+  );
 }

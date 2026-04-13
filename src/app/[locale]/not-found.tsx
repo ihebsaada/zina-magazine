@@ -1,6 +1,6 @@
-import Link from 'next/link'
-import { Container } from '@/components/ui/Container'
-import { Button } from '@/components/ui/Button'
+import Link from "next/link";
+import { Container } from "@/components/ui/Container";
+import { Button } from "@/components/ui/Button";
 
 export default function NotFound() {
   return (
@@ -10,7 +10,7 @@ export default function NotFound() {
         <h2 className="font-editorial text-[10rem] md:text-[14rem] leading-none text-[var(--color-ink-950)] opacity-[0.03] mb-0 font-bold select-none pointer-events-none">
           404
         </h2>
-        
+
         <div className="-mt-16 md:-mt-24 relative z-10 w-full">
           {/* ─── Anglais ─── */}
           <div className="mb-10">
@@ -18,7 +18,8 @@ export default function NotFound() {
               Page not found
             </h3>
             <p className="font-body text-base md:text-[var(--text-lead)] text-[var(--color-ink-600)]">
-              The article or category you are looking for does not exist or has been moved.
+              The article or category you are looking for does not exist or has
+              been moved.
             </p>
           </div>
 
@@ -38,14 +39,18 @@ export default function NotFound() {
           {/* ─── Boutons de retour ─── */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <Link href="/en">
-              <Button variant="primary" className="min-w-[200px]">Return Home</Button>
+              <Button variant="primary" className="min-w-[200px]">
+                Return Home
+              </Button>
             </Link>
             <Link href="/ar">
-              <Button variant="outline" className="min-w-[200px]">العودة للرئيسية</Button>
+              <Button variant="outline" className="min-w-[200px]">
+                العودة للرئيسية
+              </Button>
             </Link>
           </div>
         </div>
       </Container>
     </main>
-  )
+  );
 }

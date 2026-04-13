@@ -42,6 +42,16 @@ export default defineType({
       type: 'text',
       rows: 3,
     }),
+    defineField({
+      name: 'parent',
+      title: 'Parent Category',
+      type: 'reference',
+      to: [{ type: 'category' }],
+      description: 'Select a parent category if this is a sub-category. Leave empty for main categories.',
+      options: {
+        disableNew: true, // Prevents creating nested categories recursively from within the selector
+      }
+    }),
   ],
   preview: {
     select: { title: 'name_en', subtitle: 'name_ar' },

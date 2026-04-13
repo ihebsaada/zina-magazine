@@ -11,13 +11,13 @@
  *
  * Ref: next-sanity docs — https://www.sanity.io/docs/nextjs-app-router
  */
-import { Studio } from './Studio'
+import { Studio } from "./Studio";
 
 // Désactiver le SSR pour le Studio (il est 100% client-side)
-export const dynamic = 'force-static'
+export const dynamic = "force-static";
 
-export { metadata, viewport } from 'next-sanity/studio'
+export { metadata, viewport } from "next-sanity/studio";
 
 export default function StudioPage() {
-  return <Studio />
+  return <Studio />;
 }

@@ -11,77 +11,79 @@
  *   2. Remplacer Credentials par Email provider + SMTP réel si multi-admin
  *   3. Protéger /admin et /studio dans middleware.ts
  */
-import NextAuth from 'next-auth'
-import type { NextAuthOptions } from 'next-auth'
-import CredentialsProvider from 'next-auth/providers/credentials'
+import NextAuth from "next-auth";
+import type { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
 
 export const authOptions: NextAuthOptions = {
   // ── Providers ───────────────────────────────────────────────────────────────
   providers: [
     CredentialsProvider({
-      name: 'Admin',
+      name: "Admin",
       credentials: {
-        email:    { label: 'Email',    type: 'email'    },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null
+        if (!credentials?.email || !credentials?.password) return null;
 
-        const adminEmail    = process.env.ADMIN_EMAIL
-        const adminPassword = process.env.ADMIN_PASSWORD
+        const adminEmail = process.env.ADMIN_EMAIL;
+        const adminPassword = process.env.ADMIN_PASSWORD;
 
         if (!adminEmail || !adminPassword) {
-          console.error('[NextAuth] ADMIN_EMAIL or ADMIN_PASSWORD not set in .env.local')
-          return null
+          console.error(
+            "[NextAuth] ADMIN_EMAIL or ADMIN_PASSWORD not set in .env.local",
+          );
+          return null;
         }
 
         if (
-          credentials.email    === adminEmail &&
+          credentials.email === adminEmail &&
           credentials.password === adminPassword
         ) {
           return {
-            id   : '1',
-            name : 'Admin',
+            id: "1",
+            name: "Admin",
             email: adminEmail,
-            role : 'admin',
-          }
+            role: "admin",
+          };
         }
-        return null
+        return null;
       },
     }),
   ],
 
   // ── Session ─────────────────────────────────────────────────────────────────
   session: {
-    strategy: 'jwt',
-    maxAge  : 8 * 60 * 60, // 8 heures
+    strategy: "jwt",
+    maxAge: 8 * 60 * 60, // 8 heures
   },
 
   // ── JWT callbacks (pour propager le rôle) ───────────────────────────────────
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = user.role
-      return token
+      if (user) token.role = user.role;
+      return token;
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role
+        session.user.role = token.role;
       }
-      return session
+      return session;
     },
   },
 
   // ── Pages personnalisées ────────────────────────────────────────────────────
   pages: {
-    signIn: '/admin/login',
-    error : '/admin/login',
+    signIn: "/admin/login",
+    error: "/admin/login",
   },
 
   // ── Secret ──────────────────────────────────────────────────────────────────
   secret: process.env.NEXTAUTH_SECRET,
 
-  debug: process.env.NODE_ENV === 'development',
-}
+  debug: process.env.NODE_ENV === "development",
+};
 
-const handler = NextAuth(authOptions)
-export { handler as GET, handler as POST }
+const handler = NextAuth(authOptions);
+export { handler as GET, handler as POST };

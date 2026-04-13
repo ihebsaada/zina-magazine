@@ -1,4 +1,4 @@
-'use client'
+"use client";
 
 /**
  * components/article/InteractionsUI.tsx
@@ -9,31 +9,44 @@
  * - CommentsSection (Server Actions)
  */
 
-import { cn } from '@/lib/utils'
-import { LikeWidget } from './LikeWidget'
-import { CommentsSection } from './CommentsSection'
+import { cn } from "@/lib/utils";
+import { LikeWidget } from "@/features/likes/components/LikeWidget";
+import { CommentsSection } from "@/features/comments/components/CommentsSection";
 
 interface InteractionsUIProps {
-  articleId: string
-  locale: 'en' | 'ar'
+  articleId: string;
+  locale: "en" | "ar";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  dict: any
-  className?: string
+  dict: any;
+  className?: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  initialComments?: any[]
-  initialLikeCount?: number
+  initialComments?: any[];
+  initialLikeCount?: number;
 }
 
-export function InteractionsUI({ articleId, locale, dict, className, initialComments, initialLikeCount }: InteractionsUIProps) {
+export function InteractionsUI({
+  articleId,
+  locale,
+  dict,
+  className,
+  initialComments,
+  initialLikeCount,
+}: InteractionsUIProps) {
   return (
-    <div className={cn('mt-8', className)}>
-      {/* 
-        Le découpage intelligent avec children (Composition) permet au CommentsSection 
-        de dessiner sa barre d'actions tout en incluant le bouton des likes à l'intérieur ! 
-      */}
-      <CommentsSection articleId={articleId} locale={locale} dict={dict} initialComments={initialComments}>
-        <LikeWidget articleId={articleId} locale={locale} dict={dict} initialLikeCount={initialLikeCount} />
+    <div className={cn("mt-8", className)}>
+      <CommentsSection
+        articleId={articleId}
+        locale={locale}
+        dict={dict}
+        initialComments={initialComments}
+      >
+        <LikeWidget
+          articleId={articleId}
+          locale={locale}
+          dict={dict}
+          initialLikeCount={initialLikeCount}
+        />
       </CommentsSection>
     </div>
-  )
+  );
 }

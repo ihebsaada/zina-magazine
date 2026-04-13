@@ -1,13 +1,13 @@
-import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { forwardRef } from "react";
+import { cn } from "@/lib/utils";
 
 export interface SectionHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  title: string
-  subtitle?: string
+  title: string;
+  subtitle?: string;
   /** Optionnel : élément d'action à afficher à droite (ex: bouton "Voir plus") */
-  action?: React.ReactNode
+  action?: React.ReactNode;
   /** Centrer le texte au lieu de l'alignement naturel LTR/RTL */
-  centered?: boolean
+  centered?: boolean;
 }
 
 const SectionHeader = forwardRef<HTMLDivElement, SectionHeaderProps>(
@@ -16,16 +16,16 @@ const SectionHeader = forwardRef<HTMLDivElement, SectionHeaderProps>(
       <div
         ref={ref}
         className={cn(
-          'flex flex-col',
-          centered ? 'items-center text-center' : 'items-start',
-          className
+          "flex flex-col",
+          centered ? "items-center text-center" : "items-start",
+          className,
         )}
         {...props}
       >
         <div
           className={cn(
-            'flex w-full items-end justify-between',
-            centered && 'justify-center'
+            "flex w-full items-end justify-between",
+            centered && "justify-center",
           )}
         >
           <h2 className="font-editorial text-[var(--text-headline)] leading-tight text-[var(--color-ink-950)]">
@@ -42,10 +42,10 @@ const SectionHeader = forwardRef<HTMLDivElement, SectionHeaderProps>(
 
         <hr className="rule-oree w-full mt-6 mb-8" />
       </div>
-    )
-  }
-)
+    );
+  },
+);
 
-SectionHeader.displayName = 'SectionHeader'
+SectionHeader.displayName = "SectionHeader";
 
-export { SectionHeader }
+export { SectionHeader };

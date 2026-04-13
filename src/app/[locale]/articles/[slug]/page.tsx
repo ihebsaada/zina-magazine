@@ -1,99 +1,110 @@
-import Image from 'next/image'
-import Link from 'next/link'
-import { notFound } from 'next/navigation'
-import { getDictionary } from '@/lib/dictionaries'
-import { type Locale } from '@/lib/i18n'
-import { getArticleBySlug, getArticlesByCategory, getAllArticleSlugs } from '@/lib/sanity/queries'
-import { getComments, getLikeCount } from '@/lib/supabase/queries'
+import Image from "next/image";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { getDictionary } from "@/lib/dictionaries";
+import { type Locale } from "@/lib/i18n";
+import {
+  getArticleBySlug,
+  getArticlesByCategory,
+  getAllArticleSlugs,
+} from "@/lib/sanity/queries";
+import { getComments } from "@/features/comments/queries";
+import { getLikeCount } from "@/features/likes/queries";
+import type { CommentReturnData } from "@/features/comments/actions";
 
-import { Container } from '@/components/ui/Container'
-import { Badge } from '@/components/ui/Badge'
-import { SectionHeader } from '@/components/ui/SectionHeader'
-import { ArticleMeta } from '@/components/article/ArticleMeta'
-import { ArticleBody } from '@/components/article/ArticleBody'
-import { InteractionsUI } from '@/components/article/InteractionsUI'
-import { ArticleCard } from '@/components/article/ArticleCard'
+import { Container } from "@/components/ui/Container";
+import { Badge } from "@/components/ui/Badge";
+import { SectionHeader } from "@/components/ui/SectionHeader";
+import { ArticleMeta } from "@/components/article/ArticleMeta";
+import { ArticleBody } from "@/components/article/ArticleBody";
+import { InteractionsUI } from "@/components/article/InteractionsUI";
+import { ArticleCard } from "@/components/article/ArticleCard";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string, slug: string }> }) {
-  const { locale, slug } = await params
-  
-  let article = null
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string; slug: string }>;
+}) {
+  const { locale, slug } = await params;
+
+  let article = null;
   try {
-    article = await getArticleBySlug(slug, locale as Locale)
+    article = await getArticleBySlug(slug, locale as Locale);
   } catch (error) {
-    console.error('Sanity fetch failed for metadata:', error)
-    throw error
+    console.error("Sanity fetch failed for metadata:", error);
+    throw error;
   }
-  
-  if (!article) return {}
-  
+
+  if (!article) return {};
+
   return {
     title: `${article.title} | Xmedia Magazine`,
     description: article.excerpt,
-  }
+  };
 }
 
 export async function generateStaticParams() {
   try {
-    const slugs = await getAllArticleSlugs()
+    const slugs = await getAllArticleSlugs();
     return slugs.flatMap((slug) => [
-      { locale: 'en', slug },
-      { locale: 'ar', slug },
-    ])
+      { locale: "en", slug },
+      { locale: "ar", slug },
+    ]);
   } catch {
-    return []
+    return [];
   }
 }
 
 export default async function ArticleDetailPage({
   params,
 }: {
-  params: Promise<{ locale: string; slug: string }>
+  params: Promise<{ locale: string; slug: string }>;
 }) {
-  const { locale, slug } = await params
-  const resolved = locale as Locale
-  const dict = await getDictionary(resolved)
+  const { locale, slug } = await params;
+  const resolved = locale as Locale;
+  const dict = await getDictionary(resolved);
 
-  let article: Awaited<ReturnType<typeof getArticleBySlug>> = null
+  let article: Awaited<ReturnType<typeof getArticleBySlug>> = null;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let relatedArticles: any[] = []
-  
-  let initialComments: any[] = []
-  let initialLikeCount = 0
+  let relatedArticles: any[] = [];
+
+  let initialComments: CommentReturnData[] = [];
+  let initialLikeCount = 0;
 
   try {
-    article = await getArticleBySlug(slug, resolved)
+    article = await getArticleBySlug(slug, resolved);
     if (article) {
       // Pour une performance maximale, on parallélise Sanity et Supabase !
       const [related, comments, likes] = await Promise.all([
         getArticlesByCategory(article.category.slug, resolved),
         getComments(article._id),
         getLikeCount(article._id),
-      ])
-      
-      initialComments = comments
-      initialLikeCount = likes
+      ]);
+
+      initialComments = comments;
+      initialLikeCount = likes;
 
       relatedArticles = related
-        .filter(a => a._id !== article?._id)
-        .slice(0, 3)
+        .filter((a) => a._id !== article?._id)
+        .slice(0, 3);
     }
   } catch (error) {
-    console.error('Sanity fetch failed:', error)
-    throw error
+    console.error("Sanity fetch failed:", error);
+    throw error;
   }
 
   if (!article) {
-    notFound()
+    notFound();
   }
 
   return (
     <main className="flex-1 pb-32">
-      
       {/* ── HEADER DE L'ARTICLE ───────────────────────────────────────── */}
       <header className="pt-16 pb-12 lg:pt-24 lg:pb-16 bg-[var(--color-paper)] border-b border-[var(--color-ink-200)]">
-        <Container variant="prose" className="text-center flex flex-col items-center">
-          
+        <Container
+          variant="prose"
+          className="text-center flex flex-col items-center"
+        >
           <Link href={`/${resolved}/categories/${article.category.slug}`}>
             <Badge variant="oree" className="mb-8">
               {article.category.title}
@@ -108,7 +119,7 @@ export default async function ArticleDetailPage({
             {article.excerpt}
           </p>
 
-          <ArticleMeta 
+          <ArticleMeta
             author={article.author}
             publishedAt={article.publishedAt}
             readingTime={article.readingTime}
@@ -116,7 +127,6 @@ export default async function ArticleDetailPage({
             dict={dict}
             className="justify-center"
           />
-
         </Container>
       </header>
 
@@ -137,15 +147,14 @@ export default async function ArticleDetailPage({
       {/* ── CORPS DE L'ARTICLE ────────────────────────────────────────── */}
       <article className="py-16 md:py-24">
         <Container variant="prose">
-          
           <ArticleBody body={article.body} />
 
           {/* Séparateur de fin d'article */}
           <div className="mt-16 mb-12 flex justify-center">
-             <div className="w-16 h-[1px] bg-[var(--color-oree)]" />
+            <div className="w-16 h-[1px] bg-[var(--color-oree)]" />
           </div>
 
-          <InteractionsUI 
+          <InteractionsUI
             articleId={article._id}
             locale={resolved}
             dict={dict}
@@ -155,7 +164,7 @@ export default async function ArticleDetailPage({
 
           <div className="mt-16 p-8 bg-[var(--color-paper-alt)] flex items-center gap-6">
             {article.author.avatar && (
-              <Image 
+              <Image
                 src={article.author.avatar}
                 alt={article.author.name}
                 width={80}
@@ -172,7 +181,6 @@ export default async function ArticleDetailPage({
               </p>
             </div>
           </div>
-
         </Container>
       </article>
 
@@ -180,17 +188,24 @@ export default async function ArticleDetailPage({
       {relatedArticles.length > 0 && (
         <section className="py-24 bg-[var(--color-paper)] border-t border-[var(--color-ink-200)]">
           <Container>
-            <SectionHeader 
-               title={resolved === 'ar' ? 'اقرأ أيضاً' : 'Read Next'}
-               action={<Link href={`/${resolved}/categories/${article.category.slug}`} className="nav-link">{resolved === 'ar' ? 'المزيد' : 'See all'}</Link>}
+            <SectionHeader
+              title={resolved === "ar" ? "اقرأ أيضاً" : "Read Next"}
+              action={
+                <Link
+                  href={`/${resolved}/categories/${article.category.slug}`}
+                  className="nav-link"
+                >
+                  {resolved === "ar" ? "المزيد" : "See all"}
+                </Link>
+              }
             />
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {relatedArticles.map(rel => (
-                <ArticleCard 
-                  key={rel._id} 
-                  article={rel} 
-                  locale={resolved} 
-                  dict={dict} 
+              {relatedArticles.map((rel) => (
+                <ArticleCard
+                  key={rel._id}
+                  article={rel}
+                  locale={resolved}
+                  dict={dict}
                   aspectRatio="landscape"
                 />
               ))}
@@ -198,7 +213,6 @@ export default async function ArticleDetailPage({
           </Container>
         </section>
       )}
-
     </main>
-  )
+  );
 }

@@ -1,5 +1,5 @@
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
+import { clsx, type ClassValue } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 /**
  * Utilitaire central pour fusionner les classes Tailwind de manière sûre.
@@ -7,5 +7,5 @@ import { twMerge } from 'tailwind-merge'
  * Permet l'usage objets/conditions (ex: { 'bg-red-500': hasError })
  */
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs))
+  return twMerge(clsx(inputs));
 }

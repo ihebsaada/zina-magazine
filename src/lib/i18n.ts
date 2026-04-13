@@ -7,11 +7,11 @@
 
 // ─── Locales définies ─────────────────────────────────────────────────────────
 
-export const locales = ['en', 'ar'] as const
+export const locales = ["en", "ar"] as const;
 
-export type Locale = (typeof locales)[number]
+export type Locale = (typeof locales)[number];
 
-export const defaultLocale: Locale = 'en'
+export const defaultLocale: Locale = "en";
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -20,29 +20,29 @@ export const defaultLocale: Locale = 'en'
  * Utile pour narrower un `string` venant des params Next.js.
  */
 export const isValidLocale = (value: string): value is Locale =>
-  (locales as readonly string[]).includes(value)
+  (locales as readonly string[]).includes(value);
 
 /**
  * Retourne `true` si la locale utilise une écriture droite-à-gauche.
  */
-export const isRTL = (locale: Locale): boolean => locale === 'ar'
+export const isRTL = (locale: Locale): boolean => locale === "ar";
 
 /**
  * Retourne l'attribut HTML `dir` correspondant à la locale.
  */
-export const getDir = (locale: Locale): 'ltr' | 'rtl' =>
-  isRTL(locale) ? 'rtl' : 'ltr'
+export const getDir = (locale: Locale): "ltr" | "rtl" =>
+  isRTL(locale) ? "rtl" : "ltr";
 
 /**
  * Retourne le label affiché pour chaque locale (pour le switcher de langue).
  */
 export const localeLabels: Record<Locale, string> = {
-  en: 'English',
-  ar: 'العربية',
-}
+  en: "English",
+  ar: "العربية",
+};
 
 /**
  * Retourne le code BCP-47 à passer à l'attribut `lang` de `<html>`.
  * Extensible si on ajoute des sous-locales (ex: fr-CA).
  */
-export const getHtmlLang = (locale: Locale): string => locale
+export const getHtmlLang = (locale: Locale): string => locale;
