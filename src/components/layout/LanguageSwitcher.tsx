@@ -27,12 +27,12 @@ export function LanguageSwitcher({ currentLocale }: { currentLocale: Locale }) {
   return (
     <Link
       href={getTargetUrl()}
-      className="inline-flex items-center gap-2 leading-none text-[var(--text-caption)] font-medium uppercase tracking-wider text-[var(--color-ink-600)] hover:text-[var(--color-ink-950)] transition-colors duration-[var(--duration-fast)]"
+      className="inline-flex h-8 items-center gap-2 leading-none text-[var(--text-caption)] font-medium uppercase tracking-wider text-[var(--color-ink-600)] hover:text-[var(--color-ink-950)] transition-colors duration-[var(--duration-fast)]"
       prefetch={false} // Eviter le préchargement croisé des locales
       aria-label={`Switch language to ${targetLabel}`}
     >
       <Globe
-        className="w-4 h-4 shrink-0 translate-y-[-2px]"
+        className="w-4 h-4 shrink-0"
         strokeWidth={1.5}
       />
       <span

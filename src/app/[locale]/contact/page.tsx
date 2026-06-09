@@ -1,37 +1,48 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { isValidLocale, type Locale } from "@/lib/i18n";
 import { Container } from "@/components/ui/Container";
-import { Input } from "@/components/ui/Input";
-import { Textarea } from "@/components/ui/Textarea";
-import { Button } from "@/components/ui/Button";
-
-export const metadata = {
-  title: "Contact | Xmedia Magazine",
-  description: "Get in touch with us.",
-};
+import { ContactForm } from "@/features/contact/components/ContactForm";
 
 const content = {
   en: {
     title: "Contact Us",
     subtitle:
-      "We would love to hear from you. For editorial pitches, partnerships, or general inquiries, please use the form below.",
-    name: "Full Name",
-    email: "Email Address",
-    subject: "Subject",
-    message: "Your Message",
-    send: "Send Message",
+      "We would love to hear from you. For editorial pitches, partnerships, or general inquiries, please reach out to us directly.",
+    emailLabel: "General Inquiries",
+    email: "hello@ZINA.magazine",
+    pressLabel: "Press & Partnerships",
+    pressEmail: "partnerships@ZINA.magazine",
+    metaTitle: "Contact | ZINA Magazine",
+    metaDesc: "Get in touch with ZINA Magazine for editorial inquiries and partnerships.",
   },
   ar: {
     title: "اتصل بنا",
     subtitle:
-      "نود أن نسمع منك. للعروض التحريرية، الشراكات، أو الاستفسارات العامة، يرجى استخدام النموذج أدناه.",
-    name: "الاسم الكامل",
-    email: "البريد الإلكتروني",
-    subject: "الموضوع",
-    message: "رسالتك",
-    send: "إرسال الرسالة",
+      "نود أن نسمع منك. للعروض التحريرية، الشراكات، أو الاستفسارات العامة، يرجى التواصل معنا مباشرة.",
+    emailLabel: "استفسارات عامة",
+    email: "hello@ZINA.magazine",
+    pressLabel: "الصحافة والشراكات",
+    pressEmail: "partnerships@ZINA.magazine",
+    metaTitle: "تواصل معنا | ZINA Magazine",
+    metaDesc: "تواصل مع مجلة ZINA للاستفسارات التحريرية والشراكات.",
   },
 };
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
+  const { locale } = await params;
+  const resolved = isValidLocale(locale) ? (locale as Locale) : "en";
+  const text = content[resolved];
+
+  return {
+    title: text.metaTitle,
+    description: text.metaDesc,
+  };
+}
 
 export default async function ContactPage({
   params,
@@ -46,7 +57,7 @@ export default async function ContactPage({
 
   return (
     <main className="flex-1 pb-32">
-      {/* ── HEADER ──────────────────────────────────────────────────────── */}
+      {/* Page Header */}
       <section className="pt-24 pb-16 border-b border-[var(--color-ink-200)] bg-[var(--color-paper)]">
         <Container variant="prose" className="text-center">
           <h1 className="font-editorial text-[var(--text-display)] text-[var(--color-ink-950)] leading-tight mb-6">
@@ -58,73 +69,44 @@ export default async function ContactPage({
         </Container>
       </section>
 
-      {/* ── CONTACT FORM ──────────────────────────────────────────────── */}
-      <section className="py-24">
-        <Container variant="prose">
-          <form className="space-y-12">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label
-                  htmlFor="name"
-                  className="text-[var(--text-caption)] font-medium text-[var(--color-ink-500)] uppercase tracking-widest"
-                >
-                  {text.name}
-                </label>
-                <Input id="name" type="text" placeholder={text.name} required />
-              </div>
-              <div className="space-y-3">
-                <label
-                  htmlFor="email"
-                  className="text-[var(--text-caption)] font-medium text-[var(--color-ink-500)] uppercase tracking-widest"
+      {/* Contact Section: Two Columns on Desktop, Stacked on Mobile */}
+      <section className="py-24 animate-fade-in">
+        <Container variant="wide">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 items-start">
+            {/* Left Column: Direct Emails */}
+            <div className="lg:col-span-5 space-y-12">
+              <div className="space-y-3 p-6 bg-[var(--color-paper)] border border-[var(--color-ink-100)]">
+                <h2 className="text-[var(--text-caption)] font-medium text-[var(--color-ink-500)] uppercase tracking-widest">
+                  {text.emailLabel}
+                </h2>
+                <a
+                  href={`mailto:${text.email}`}
+                  className="block text-xl font-editorial text-[var(--color-ink-950)] hover:text-[var(--color-oree)] transition-colors break-all"
+                  dir="ltr"
                 >
                   {text.email}
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder={text.email}
-                  required
-                />
+                </a>
+              </div>
+
+              <div className="space-y-3 p-6 bg-[var(--color-paper)] border border-[var(--color-ink-100)]">
+                <h2 className="text-[var(--text-caption)] font-medium text-[var(--color-ink-500)] uppercase tracking-widest">
+                  {text.pressLabel}
+                </h2>
+                <a
+                  href={`mailto:${text.pressEmail}`}
+                  className="block text-xl font-editorial text-[var(--color-ink-950)] hover:text-[var(--color-oree)] transition-colors break-all"
+                  dir="ltr"
+                >
+                  {text.pressEmail}
+                </a>
               </div>
             </div>
 
-            <div className="space-y-3">
-              <label
-                htmlFor="subject"
-                className="text-[var(--text-caption)] font-medium text-[var(--color-ink-500)] uppercase tracking-widest"
-              >
-                {text.subject}
-              </label>
-              <Input
-                id="subject"
-                type="text"
-                placeholder={text.subject}
-                required
-              />
+            {/* Right Column: Contact Form */}
+            <div className="lg:col-span-7">
+              <ContactForm locale={resolved} />
             </div>
-
-            <div className="space-y-3">
-              <label
-                htmlFor="message"
-                className="text-[var(--text-caption)] font-medium text-[var(--color-ink-500)] uppercase tracking-widest"
-              >
-                {text.message}
-              </label>
-              <Textarea
-                id="message"
-                placeholder={text.message}
-                rows={6}
-                required
-              />
-            </div>
-
-            {/* Note : bouton aligné en start pour un look éditorial plus confiant que pleine largeur */}
-            <div className="pt-4 flex justify-start">
-              <Button type="button" variant="primary">
-                {text.send}
-              </Button>
-            </div>
-          </form>
+          </div>
         </Container>
       </section>
     </main>

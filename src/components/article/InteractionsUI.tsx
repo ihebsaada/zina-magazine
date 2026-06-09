@@ -12,9 +12,12 @@
 import { cn } from "@/lib/utils";
 import { LikeWidget } from "@/features/likes/components/LikeWidget";
 import { CommentsSection } from "@/features/comments/components/CommentsSection";
+import { ShareButton } from "@/components/article/ShareButton";
 
 interface InteractionsUIProps {
   articleId: string;
+  articleSlug?: string;
+  articleTitle?: string;
   locale: "en" | "ar";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dict: any;
@@ -26,6 +29,8 @@ interface InteractionsUIProps {
 
 export function InteractionsUI({
   articleId,
+  articleSlug,
+  articleTitle,
   locale,
   dict,
   className,
@@ -36,9 +41,18 @@ export function InteractionsUI({
     <div className={cn("mt-8", className)}>
       <CommentsSection
         articleId={articleId}
+        articleSlug={articleSlug}
+        articleTitle={articleTitle}
         locale={locale}
         dict={dict}
         initialComments={initialComments}
+        shareSlot={
+          <ShareButton
+            locale={locale}
+            title={articleTitle ?? ""}
+            slug={articleSlug ?? ""}
+          />
+        }
       >
         <LikeWidget
           articleId={articleId}

@@ -2,7 +2,7 @@
   "meta": {
     "locale": "English",
     "direction": "ltr",
-    "defaultTitle": "Xmedia — Cultural Magazine",
+    "defaultTitle": "ZINA — Cultural Magazine",
     "defaultDescription": "A premium digital magazine for culture, arts, and society with a modern, feminine editorial sensibility."
   },
   "nav": {
@@ -14,6 +14,16 @@
     "readMore": "Read more",
     "backToHome": "Back to home",
     "latestIssue": "Latest issue"
+  },
+  "search": {
+    "placeholder": "Search articles...",
+    "label": "Search",
+    "close": "Close search",
+    "resultsFor": "Results for",
+    "found": "article found",
+    "foundPlural": "articles found",
+    "noResults": "No articles found for",
+    "openSearch": "Open search"
   },
   "home": {
     "featuredLabel": "Featured",
@@ -44,7 +54,7 @@
       "subscribe": "Subscribe",
       "contact": "Contact"
     },
-    "copyright": "© 2025 Xmedia Magazine. All rights reserved.",
+    "copyright": "© 2025 ZINA Magazine. All rights reserved.",
     "legal": {
       "privacy": "Privacy",
       "terms": "Terms"

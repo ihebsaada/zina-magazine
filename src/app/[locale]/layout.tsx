@@ -5,6 +5,7 @@ import { isValidLocale, getDir, getHtmlLang, type Locale } from "@/lib/i18n";
 import { getDictionary } from "@/lib/dictionaries";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { SiteFooter } from "@/components/layout/SiteFooter";
+import { ScrollToTop } from "@/components/ui/ScrollToTop";
 import "@/app/globals.css";
 
 /* ──────────────────────────────────────────────────────────────────────────────
@@ -57,14 +58,15 @@ export async function generateMetadata({
   if (!isValidLocale(locale)) return {};
 
   const dict = await getDictionary(locale);
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
   return {
     title: {
-      template: "%s — Xmedia",
+      template: "%s — ZINA",
       default: dict.meta.defaultTitle,
     },
     description: dict.meta.defaultDescription,
-    metadataBase: new URL("https://xmedia.magazine"),
+    metadataBase: new URL(siteUrl),
     alternates: {
       languages: { en: "/en", ar: "/ar" },
     },
@@ -103,12 +105,15 @@ export default async function LocaleLayout({
   ].join(" ");
 
   return (
-    <html lang={lang} dir={dir} className={`${fontVars} h-full`}>
-      <body className="min-h-dvh flex flex-col">
-        <SiteHeader locale={resolved} dict={dict} />
-        <div className="flex-1 flex flex-col">{children}</div>
-        <SiteFooter locale={resolved} dict={dict} />
-      </body>
-    </html>
+    <div
+      lang={lang}
+      dir={dir}
+      className={`${fontVars} min-h-dvh flex flex-col`}
+    >
+      <SiteHeader locale={resolved} dict={dict} />
+      <div className="flex-1 flex flex-col">{children}</div>
+      <SiteFooter locale={resolved} dict={dict} />
+      <ScrollToTop />
+    </div>
   );
 }

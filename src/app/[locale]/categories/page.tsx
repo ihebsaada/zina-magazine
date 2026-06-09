@@ -5,7 +5,7 @@ import { getAllCategoriesWithCount } from "@/lib/sanity/queries";
 import { Container } from "@/components/ui/Container";
 
 export const metadata = {
-  title: "Categories | Xmedia Magazine",
+  title: "Categories | ZINA Magazine",
   description: "Explore topics and categories.",
 };
 

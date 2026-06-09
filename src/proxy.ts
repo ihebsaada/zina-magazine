@@ -1,13 +1,14 @@
 /**
  * src/proxy.ts
  *
- * Point d'entrée obligatoire Next.js App Router (Convention spécifique à ce projet).
+ *  * Fichier proxy Next.js pour la protection /admin et la redirection i18n.
  * Combine deux responsabilités dans l'ordre :
  *
- *  1. Protection des routes /admin et /studio (NextAuth)
+ *  1. Protection des routes /admin (NextAuth)
  *  2. Redirection i18n vers la locale préférée du visiteur
  *
- * ⚠️ L'ordre est critique : la vérification d'authentification
+ * Note : /studio est exclu du matcher — Sanity gère sa propre authentification.
+ *  L'ordre est critique : la vérification d'authentification
  *     doit précéder la redirection locale.
  */
 import { NextResponse } from "next/server";
@@ -28,11 +29,10 @@ function getPreferredLocale(request: NextRequest): string {
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // ── 1. Protection /admin et /studio ─────────────────────────────────────
+  // ── 1. Protection /admin ────────────────────────────────────────────────
   const isAdminRoute = pathname.startsWith("/admin");
-  const isStudioRoute = pathname.startsWith("/studio");
 
-  if (isAdminRoute || isStudioRoute) {
+  if (isAdminRoute) {
     // La page de login est toujours accessible
     if (pathname === "/admin/login") {
       return NextResponse.next();
@@ -67,8 +67,13 @@ export async function proxy(request: NextRequest) {
   return NextResponse.redirect(request.nextUrl);
 }
 
-// ── Matcher ───────────────────────────────────────────────────────────────────
+// ── Matcher ──────────────────────────────────────────────────────────
 
+// export const config = {
+//   matcher: ["/((?!_next/static|_next/image|favicon.ico|studio|api/auth).*)"],
+// };
 export const config = {
-  matcher: ["/((?!_next/static|_next/image|favicon.ico|studio|api/auth).*)"],
+  matcher: [
+    "/((?!api(?:/|$)|_next/static|_next/image|studio(?:/|$)|.*\\..*).*)",
+  ],
 };

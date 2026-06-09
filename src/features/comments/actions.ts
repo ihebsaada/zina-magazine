@@ -43,6 +43,8 @@ export async function addComment(
   const commentBody = (formData.get("body") as string)?.trim();
   const localeRaw = formData.get("locale") as string;
   const locale = localeRaw === "ar" ? "ar" : "en";
+  const articleSlug = (formData.get("articleSlug") as string | null)?.trim() || null;
+  const articleTitle = (formData.get("articleTitle") as string | null)?.trim() || null;
 
   const t = (en: string, ar: string) => (locale === "ar" ? ar : en);
 
@@ -82,25 +84,49 @@ export async function addComment(
 
   const insertPayload: TablesInsert<"comments"> = {
     article_id: articleId,
+    article_slug: articleSlug,
+    article_title: articleTitle,
     author_name: authorName,
     body: commentBody,
     locale,
-    is_approved: true, // par défaut approuvé sur ce MVP
+    is_approved: false, // En attente de modération par défaut
   };
 
-  // Initialisation Server Client 100% sûr, étanche
   const supabase = createServerSupabase();
 
-  const { data, error } = await supabase
-    .from("comments")
-    .insert(insertPayload)
-    .select("id, author_name, body, locale, created_at")
-    .single();
+  try {
+    const { error } = await supabase
+      .from("comments")
+      .insert(insertPayload);
 
-  if (error) {
-    // Si la DB échoue
-    return { error: error.message };
+    if (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[comments action]", error);
+      }
+      return {
+        error: t(
+          "Unable to send comment. Please try again.",
+          "تعذر إرسال التعليق. يرجى المحاولة مرة أخرى.",
+        ),
+      };
+    }
+
+    return {
+      success: true,
+      message: t(
+        "Comment submitted. It will appear after approval.",
+        "تم إرسال التعليق. سيظهر بعد الموافقة.",
+      ),
+    };
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[comments action]", err);
+    }
+    return {
+      error: t(
+        "Unable to send comment. Please try again.",
+        "تعذر إرسال التعليق. يرجى المحاولة مرة أخرى.",
+      ),
+    };
   }
-
-  return { success: true, comment: data };
 }

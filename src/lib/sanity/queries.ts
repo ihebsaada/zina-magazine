@@ -198,14 +198,18 @@ export async function getFeaturedArticle(locale: Locale) {
   return fallback ? resolveArticle(fallback, locale) : null;
 }
 
-/** Articles les plus récents, excluant un ID, limités */
+/**
+ * 4 most recent non-featured articles.
+ * Filters: (1) featured != true — structural guard, independent of the document action.
+ *          (2) _id != $excludeId — handles the fallback case where the hero has no flag.
+ */
 export async function getLatestArticles(
   locale: Locale,
   excludeId?: string,
-  limit = 3,
+  limit = 4,
 ) {
-  const condition = excludeId ? `&& _id != $excludeId` : "";
-  const query = `*[_type == "article" ${condition}] | order(publishedAt desc) [0...$limit] {
+  const idCondition = excludeId ? `&& _id != $excludeId` : "";
+  const query = `*[_type == "article" && featured != true ${idCondition}] | order(publishedAt desc) [0...$limit] {
     ${ARTICLE_CARD_FIELDS}
   }`;
   const raw: SanityArticle[] = await sanityClient.fetch(
@@ -230,12 +234,24 @@ export async function getArticleBySlug(slug: string, locale: Locale) {
   return resolveArticle(raw, locale);
 }
 
-/** Articles d'une catégorie par slug de catégorie */
+/**
+ * Articles by category slug.
+ * Matches articles directly assigned to the slug OR assigned to any
+ * subcategory whose parent slug matches — so homepage sections that
+ * query a top-level slug (e.g. "culture") still find articles that
+ * editors assigned to a subcategory (e.g. "agenda-culture").
+ */
 export async function getArticlesByCategory(
   categorySlug: string,
   locale: Locale,
 ) {
-  const query = `*[_type == "article" && category->slug.current == $categorySlug] | order(publishedAt desc) {
+  const query = `*[
+    _type == "article" &&
+    (
+      category->slug.current == $categorySlug ||
+      category->parent->slug.current == $categorySlug
+    )
+  ] | order(publishedAt desc) {
     ${ARTICLE_CARD_FIELDS}
   }`;
   const raw: SanityArticle[] = await sanityClient.fetch(
@@ -307,4 +323,114 @@ export async function getAllArticleSlugs(): Promise<string[]> {
 export async function getAllCategorySlugs(): Promise<string[]> {
   const query = `*[_type == "category"]{ "slug": slug.current }.slug`;
   return sanityClient.fetch(query);
+}
+
+// ─── Site Settings ────────────────────────────────────────────────────────────
+
+export interface HomepageCategoryHighlight {
+  slug: string;
+  title: string; // resolved for the current locale
+}
+
+/**
+ * Fetches the siteSettings singleton and returns the configured homepage
+ * category highlight, resolved to the current locale.
+ *
+ * Returns `null` if:
+ *  - the siteSettings document has never been published
+ *  - the homepageCategoryHighlight field is empty
+ *
+ * The caller is responsible for applying a fallback slug.
+ */
+export async function getHomepageSettings(
+  locale: Locale,
+): Promise<HomepageCategoryHighlight | null> {
+  const query = `*[_type == "siteSettings" && _id == "siteSettings"][0] {
+    "highlightCategory": homepageCategoryHighlight-> {
+      "slug": slug.current,
+      name_en,
+      name_ar
+    }
+  }`;
+
+  const raw = await sanityClient.fetch<{
+    highlightCategory: {
+      slug: string;
+      name_en: string;
+      name_ar: string;
+    } | null;
+  } | null>(query, {}, { next: { revalidate: 300 } });
+
+  if (!raw?.highlightCategory) return null;
+
+  return {
+    slug: raw.highlightCategory.slug,
+    title:
+      locale === "ar"
+        ? raw.highlightCategory.name_ar
+        : raw.highlightCategory.name_en,
+  };
+}
+
+/**
+ * Returns the ordered list of top-level categories for the site header,
+ * each with their subcategories resolved.
+ *
+ * Source: siteSettings.headerCategories (ordered array of references).
+ *
+ * Fallback: if the array is empty or siteSettings has never been published,
+ * falls back to getMainCategoriesWithSubs() — alphabetical, all categories.
+ * This ensures the header always renders something meaningful.
+ */
+export async function getHeaderCategories(locale: Locale) {
+  const query = `*[_type == "siteSettings" && _id == "siteSettings"][0] {
+    "headerCategories": headerCategories[]->{
+      ${CATEGORY_FIELDS},
+      "subcategories": *[_type == "category" && parent._ref == ^._id] | order(name_en asc) {
+        ${CATEGORY_FIELDS}
+      }
+    }
+  }`;
+
+  const raw = await sanityClient.fetch<{
+    headerCategories: (SanityCategory & {
+      subcategories: SanityCategory[];
+    })[] | null;
+  } | null>(query, {}, { next: { revalidate: 300 } });
+
+  // If the editor has configured categories, use them in the stored order
+  if (raw?.headerCategories && raw.headerCategories.length > 0) {
+    return raw.headerCategories.map((c) => resolveCategory(c, locale));
+  }
+
+  // Fallback: all main categories alphabetically
+  return getMainCategoriesWithSubs(locale);
+}
+
+/**
+ * Full-text article search across title and excerpt for the given locale.
+ * Uses GROQ string matching (case-insensitive contains) — no additional plugin needed.
+ */
+export async function searchArticles(query: string, locale: Locale) {
+  if (!query.trim()) return [];
+
+  // Match against both locales so results are locale-aware but the DB holds both.
+  const groq = `*[
+    _type == "article" &&
+    (
+      title_en match $pattern ||
+      title_ar match $pattern ||
+      excerpt_en match $pattern ||
+      excerpt_ar match $pattern
+    )
+  ] | order(publishedAt desc) [0...30] {
+    ${ARTICLE_CARD_FIELDS}
+  }`;
+
+  const raw: SanityArticle[] = await sanityClient.fetch(
+    groq,
+    { pattern: `*${query}*` },
+    { next: { revalidate: 30 } },
+  );
+  return raw.map((a) => resolveArticle(a, locale));
 }

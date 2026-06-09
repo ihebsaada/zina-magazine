@@ -11,17 +11,20 @@ import { createServerSupabase } from "@/lib/supabase/server";
 import type { TablesInsert } from "@/lib/supabase/types";
 
 export type LikeActionState = {
-  success?: boolean;
+  success: boolean;
+  isLiked: boolean;
+  count?: number;
   error?: string;
 };
 
 export async function toggleLike(
   articleId: string,
   sessionId: string,
-  action: "like" | "unlike",
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  action?: "like" | "unlike",
 ): Promise<LikeActionState> {
-  const cleanArticleId = articleId.trim();
-  const cleanSessionId = sessionId.trim();
+  const cleanArticleId = articleId?.trim();
+  const cleanSessionId = sessionId?.trim();
 
   // Contrôle strict pour éviter l'insertion de déchets ou de sessionId falsifiés
   if (
@@ -30,41 +33,117 @@ export async function toggleLike(
     cleanSessionId.length < 5 ||
     cleanSessionId.length > 100
   ) {
-    return { error: "Invalid articleId or sessionId" };
+    return {
+      success: false,
+      isLiked: false,
+      error: "Invalid articleId or sessionId",
+    };
   }
 
   // Client isolé et sécurisé pour l'exécution Serveur
   const supabase = createServerSupabase();
 
-  if (action === "like") {
-    const insertPayload: TablesInsert<"likes"> = {
-      article_id: cleanArticleId,
-      session_id: cleanSessionId,
-    };
-
-    const { error } = await supabase.from("likes").insert(insertPayload);
-
-    if (error) {
-      // Si l'utilisateur clique frénétiquement et que l'insert existe : exception tolérée
-      if (error.code === "23505") {
-        return { success: true };
-      }
-      return { error: error.message };
-    }
-
-    return { success: true };
-  } else {
-    // Suppression
-    const { error } = await supabase
+  try {
+    // Check if the like already exists in the database
+    const { data: existingLike, error: checkError } = await supabase
       .from("likes")
-      .delete()
+      .select("id")
       .eq("article_id", cleanArticleId)
-      .eq("session_id", cleanSessionId);
+      .eq("session_id", cleanSessionId)
+      .maybeSingle();
 
-    if (error) {
-      return { error: error.message };
+    if (checkError) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[likes action]", checkError);
+      }
+      return {
+        success: false,
+        isLiked: false,
+        error: checkError.message,
+      };
     }
 
-    return { success: true };
+    let nextIsLiked = false;
+
+    if (existingLike) {
+      // Already liked -> delete it
+      const { error: deleteError } = await supabase
+        .from("likes")
+        .delete()
+        .eq("article_id", cleanArticleId)
+        .eq("session_id", cleanSessionId);
+
+      if (deleteError) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("[likes action]", deleteError);
+        }
+        return {
+          success: false,
+          isLiked: true,
+          error: deleteError.message,
+        };
+      }
+      nextIsLiked = false;
+    } else {
+      // Not liked -> insert it
+      const insertPayload: TablesInsert<"likes"> = {
+        article_id: cleanArticleId,
+        session_id: cleanSessionId,
+      };
+
+      const { error: insertError } = await supabase
+        .from("likes")
+        .insert(insertPayload);
+
+      if (insertError) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("[likes action]", insertError);
+        }
+        // If unique constraint violation, count as successfully liked
+        if (insertError.code === "23505") {
+          nextIsLiked = true;
+        } else {
+          return {
+            success: false,
+            isLiked: false,
+            error: insertError.message,
+          };
+        }
+      } else {
+        nextIsLiked = true;
+      }
+    }
+
+    // Retrieve the exact updated count of likes to keep client UI in sync
+    const { count, error: countError } = await supabase
+      .from("likes")
+      .select("*", { count: "exact", head: true })
+      .eq("article_id", cleanArticleId);
+
+    if (countError) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[likes action]", countError);
+      }
+      return {
+        success: true,
+        isLiked: nextIsLiked,
+      };
+    }
+
+    return {
+      success: true,
+      isLiked: nextIsLiked,
+      count: count ?? 0,
+    };
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[likes action]", err);
+    }
+    const errMessage = err instanceof Error ? err.message : "An unexpected error occurred";
+    return {
+      success: false,
+      isLiked: false,
+      error: errMessage,
+    };
   }
 }

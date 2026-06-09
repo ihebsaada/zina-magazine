@@ -30,7 +30,7 @@ export async function generateMetadata({
   if (!category) return {};
 
   return {
-    title: `${category.title} | Xmedia Magazine`,
+    title: `${category.title} | ZINA Magazine`,
     description: category.description,
   };
 }

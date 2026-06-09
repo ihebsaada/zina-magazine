@@ -6,7 +6,7 @@
  * DELETE {articleId, sessionId} → retirer un like
  */
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { createServerSupabase } from "@/lib/supabase/server";
 import type { TablesInsert } from "@/lib/supabase/types";
 
 type LikeBody = {
@@ -25,6 +25,8 @@ export async function GET(request: NextRequest) {
       { status: 400 },
     );
   }
+
+  const supabase = createServerSupabase();
 
   const { count, error } = await supabase
     .from("likes")
@@ -63,6 +65,8 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  const supabase = createServerSupabase();
+
   const insertPayload: TablesInsert<"likes"> = {
     article_id: articleId,
     session_id: sessionId,
@@ -92,6 +96,8 @@ export async function DELETE(request: NextRequest) {
       { status: 400 },
     );
   }
+
+  const supabase = createServerSupabase();
 
   const { error } = await supabase
     .from("likes")

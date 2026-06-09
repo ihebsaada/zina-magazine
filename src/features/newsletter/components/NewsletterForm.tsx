@@ -11,18 +11,21 @@ import { useState, FormEvent } from "react";
 import { Send, Loader2, CheckCircle } from "lucide-react";
 import type { Locale } from "@/lib/i18n";
 import { subscribeToNewsletter } from "@/features/newsletter/actions";
+import { cn } from "@/lib/utils";
 
 interface NewsletterFormProps {
   locale: Locale;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dict?: any;
   className?: string;
+  theme?: "light" | "dark";
 }
 
 export function NewsletterForm({
   locale,
   dict,
   className,
+  theme = "light",
 }: NewsletterFormProps) {
   const isRTL = locale === "ar";
 
@@ -39,24 +42,22 @@ export function NewsletterForm({
     subtitle:
       dict?.newsletter?.subtitle ??
       (isRTL
-        ? "قصص تهمك، أسبوعياً."
-        : "Stories that matter. Delivered weekly."),
-    placeholder:
-      dict?.newsletter?.placeholder ??
-      (isRTL ? "بريدك الإلكتروني" : "your@email.com"),
-    cta: dict?.newsletter?.cta ?? (isRTL ? "اشترك" : "Subscribe"),
-    success:
-      dict?.newsletter?.success ??
-      (isRTL
-        ? "شكراً! تم تسجيلك بنجاح."
-        : "Thank you! You&apos;re subscribed."),
-    duplicate:
-      dict?.newsletter?.duplicate ??
-      (isRTL ? "أنت مشترك بالفعل." : "You&apos;re already subscribed."),
-    error:
-      dict?.newsletter?.error ??
-      (isRTL ? "حدث خطأ. حاول مجدداً." : "Something went wrong. Please retry."),
-  };
+      ? "قصص تهمك، أسبوعياً."
+      : "Stories that matter. Delivered weekly."),
+  placeholder:
+    dict?.newsletter?.placeholder ??
+    (isRTL ? "بريدك الإلكتروني" : "your@email.com"),
+  cta: dict?.newsletter?.cta ?? (isRTL ? "اشترك" : "Subscribe"),
+  success:
+    dict?.newsletter?.success ??
+    (isRTL ? "شكراً! تم تسجيلك بنجاح." : "Thank you! You're subscribed."),
+  duplicate:
+    dict?.newsletter?.duplicate ??
+    (isRTL ? "أنت مشترك بالفعل." : "You're already subscribed."),
+  error:
+    dict?.newsletter?.error ??
+    (isRTL ? "حدث خطأ. حاول مجدداً." : "Something went wrong. Please retry."),
+};
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -76,10 +77,13 @@ export function NewsletterForm({
 
       if (result.success) {
         setStatus("success");
-        // On résout le message selon les locales UI
-        setMessage(
-          result.message?.includes("déjà inscrit") ? t.duplicate : t.success,
-        );
+
+        if (result.code === "duplicate") {
+          setMessage(t.duplicate);
+        } else {
+          setMessage(result.message ?? t.success);
+        }
+
         setEmail("");
       } else {
         setStatus("error");
@@ -91,22 +95,31 @@ export function NewsletterForm({
     }
   }
 
+  const isDark = theme === "dark";
+
   return (
     <div className={className} dir={isRTL ? "rtl" : "ltr"}>
-      <h2 className="font-editorial text-[var(--text-headline)] text-[var(--color-ink-950)] mb-3">
+      <h2
+        className={cn(
+          "font-editorial text-[var(--text-headline)] mb-3",
+          isDark ? "text-[var(--color-paper)]" : "text-[var(--color-ink-950)]"
+        )}
+      >
         {t.title}
       </h2>
-      <p className="text-[var(--text-lead)] italic text-[var(--color-ink-600)] mb-8">
+      <p
+        className={cn(
+          "text-[var(--text-lead)] italic mb-8",
+          isDark ? "text-[var(--color-ink-300)]" : "text-[var(--color-ink-600)]"
+        )}
+      >
         {t.subtitle}
       </p>
 
       {status === "success" ? (
         <div className="flex items-center justify-center gap-3 text-[var(--color-sage)]">
           <CheckCircle className="w-5 h-5" />
-          <span
-            className="text-base font-medium"
-            dangerouslySetInnerHTML={{ __html: message }}
-          />
+          <span className="text-base font-medium">{message}</span>
         </div>
       ) : (
         <form
@@ -120,12 +133,22 @@ export function NewsletterForm({
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t.placeholder}
             disabled={status === "loading"}
-            className="flex-1 px-4 py-3 border border-[var(--color-ink-300)] bg-[var(--color-paper)] text-[var(--color-ink-900)] placeholder:text-[var(--color-ink-400)] focus:outline-none focus:border-[var(--color-oree)] transition-colors text-sm disabled:opacity-50"
+            className={cn(
+              "flex-1 px-4 py-3 border focus:outline-none transition-colors text-sm disabled:opacity-50",
+              isDark
+                ? "border-[var(--color-ink-700)] bg-[var(--color-ink-900)] text-[var(--color-paper)] placeholder:text-[var(--color-ink-500)] focus:border-[var(--color-oree)]"
+                : "border-[var(--color-ink-300)] bg-[var(--color-paper)] text-[var(--color-ink-900)] placeholder:text-[var(--color-ink-400)] focus:border-[var(--color-oree)]"
+            )}
           />
           <button
             type="submit"
             disabled={status === "loading"}
-            className="flex items-center justify-center gap-2 px-8 py-3 bg-[var(--color-ink-950)] text-[var(--color-paper)] text-sm font-medium tracking-wide hover:bg-[var(--color-oree-dark)] transition-colors disabled:opacity-50 whitespace-nowrap"
+            className={cn(
+              "flex items-center justify-center gap-2 px-8 py-3 text-sm font-medium tracking-wide transition-colors disabled:opacity-50 whitespace-nowrap",
+              isDark
+                ? "bg-[var(--color-oree)] text-[var(--color-ink-950)] hover:bg-[var(--color-oree-light)]"
+                : "bg-[var(--color-ink-950)] text-[var(--color-paper)] hover:bg-[var(--color-oree-dark)]"
+            )}
           >
             {status === "loading" ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -145,3 +168,4 @@ export function NewsletterForm({
     </div>
   );
 }
+

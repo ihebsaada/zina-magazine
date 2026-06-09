@@ -4,17 +4,17 @@ import { isValidLocale, type Locale } from "@/lib/i18n";
 import { Container } from "@/components/ui/Container";
 
 export const metadata = {
-  title: "About Us | Xmedia Magazine",
+  title: "About Us | ZINA Magazine",
   description: "Our vision and identity.",
 };
 
 const content = {
   en: {
-    title: "About Xmedia",
+    title: "About ZINA",
     subtitle: "Redefining Digital Journalism",
     vision: "Our Vision",
     visionText:
-      "Xmedia was founded on a simple premise: in an age of infinite scrolling and shallow engagement, there is a profound hunger for curated, meaningful storytelling. We believe that digital media can be just as elegant, tactile, and lasting as print. Our pages are designed to let the mind breathe and the eye linger.",
+      "ZINA was founded on a simple premise: in an age of infinite scrolling and shallow engagement, there is a profound hunger for curated, meaningful storytelling. We believe that digital media can be just as elegant, tactile, and lasting as print. Our pages are designed to let the mind breathe and the eye linger.",
     identity: "Our Identity",
     identityText:
       "We bridge the gap between contemporary design, mindful living, and cultural heritage. From independent creators to established voices, we elevate narratives that shift perspectives. We are not just a magazine; we are an archive of modern elegance.",

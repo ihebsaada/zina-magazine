@@ -2,7 +2,7 @@
   "meta": {
     "locale": "العربية",
     "direction": "rtl",
-    "defaultTitle": "Xmedia — مجلة ثقافية",
+    "defaultTitle": "ZINA — مجلة ثقافية",
     "defaultDescription": "مجلة رقمية راقية تُعنى بالثقافة والفنون والمجتمع بحساسية تحريرية عصرية وأنيقة."
   },
   "nav": {
@@ -14,6 +14,16 @@
     "readMore": "اقرأ المزيد",
     "backToHome": "العودة إلى الصفحة الرئيسية",
     "latestIssue": "آخر عدد"
+  },
+  "search": {
+    "placeholder": "ابحثي عن مقال...",
+    "label": "بحث",
+    "close": "إغلاق البحث",
+    "resultsFor": "نتائج البحث عن",
+    "found": "مقال",
+    "foundPlural": "مقالات",
+    "noResults": "لم يُعثر على مقالات لـ",
+    "openSearch": "فتح البحث"
   },
   "home": {
     "featuredLabel": "مميّز",
@@ -44,7 +54,7 @@
       "subscribe": "الاشتراك",
       "contact": "تواصل معنا"
     },
-    "copyright": "© 2025 Xmedia Magazine. جميع الحقوق محفوظة.",
+    "copyright": "© 2025 ZINA Magazine. جميع الحقوق محفوظة.",
     "legal": {
       "privacy": "الخصوصية",
       "terms": "الشروط"

@@ -14,6 +14,7 @@ export async function getComments(
     .from("comments")
     .select("id, author_name, body, locale, created_at")
     .eq("article_id", articleId)
+    .eq("is_approved", true)
     .order("created_at", { ascending: false });
 
   return data ?? [];

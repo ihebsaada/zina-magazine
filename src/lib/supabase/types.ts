@@ -18,6 +18,8 @@ export type Database = {
         Row: {
           id: string;
           article_id: string;
+          article_slug: string | null;
+          article_title: string | null;
           author_name: string;
           body: string;
           locale: string;
@@ -27,6 +29,8 @@ export type Database = {
         Insert: {
           id?: string;
           article_id: string;
+          article_slug?: string | null;
+          article_title?: string | null;
           author_name: string;
           body: string;
           locale?: string;
@@ -36,6 +40,8 @@ export type Database = {
         Update: {
           id?: string;
           article_id?: string;
+          article_slug?: string | null;
+          article_title?: string | null;
           author_name?: string;
           body?: string;
           locale?: string;
@@ -85,6 +91,39 @@ export type Database = {
           email?: string;
           locale?: string;
           confirmed?: boolean;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      contact_messages: {
+        Row: {
+          id: string;
+          name: string;
+          email: string;
+          subject: string | null;
+          message: string;
+          locale: string;
+          is_read: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          email: string;
+          subject?: string | null;
+          message: string;
+          locale?: string;
+          is_read?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          email?: string;
+          subject?: string | null;
+          message?: string;
+          locale?: string;
+          is_read?: boolean;
           created_at?: string;
         };
         Relationships: [];

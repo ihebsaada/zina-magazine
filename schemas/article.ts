@@ -68,9 +68,14 @@ export default defineType({
     // ── Relations ─────────────────────────────────────────────────────────────
     defineField({
       name: 'category',
-      title: 'Category',
+      title: 'SubCategory',
       type: 'reference',
       to: [{ type: 'category' }],
+      options: {
+        filter: 'defined(parent)',
+        disableNew: true,
+      },
+      description: 'Assign this article to a subcategory. Top-level categories are not selectable.',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
@@ -139,6 +144,28 @@ export default defineType({
       title: 'Featured article?',
       type: 'boolean',
       initialValue: false,
+      description:
+        'Only one article can be featured at a time. Publishing will automatically remove this flag from the current featured article.',
+      validation: (Rule) =>
+        Rule.custom(async (isFeatured, { getClient, document }) => {
+          if (!isFeatured) return true
+          const client = getClient({ apiVersion: '2024-01-01' })
+          const currentId =
+            (document?._id as string | undefined)?.replace(/^drafts\./, '') ?? ''
+          const existing = await client.fetch<{ title_en: string } | null>(
+            `*[
+              _type == "article" &&
+              featured == true &&
+              _id != $id &&
+              !(_id in path("drafts.**"))
+            ][0]{ title_en }`,
+            { id: currentId },
+          )
+          if (existing) {
+            return `"${existing.title_en}" is currently featured and will be automatically unfeatured when you publish.`
+          }
+          return true
+        }).warning(),
     }),
     defineField({
       name: 'isExclusive',

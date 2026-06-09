@@ -35,9 +35,11 @@ export function HorizontalArticleCard({
           src={article.coverImage}
           alt={article.coverImageAlt || article.title}
           fill
-          className="object-cover transition-transform duration-700 ease-[var(--ease-editorial)] group-hover:scale-105"
+          className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]"
           sizes="(max-width: 640px) 100vw, 256px"
         />
+        {/* Vignette on hover */}
+        <div className="absolute inset-0 bg-[var(--color-ink-950)] opacity-0 group-hover:opacity-[0.06] transition-opacity duration-[var(--duration-base)] pointer-events-none" />
       </Link>
 
       {/* ── Contenu ────────────────────────────────────────────────────── */}

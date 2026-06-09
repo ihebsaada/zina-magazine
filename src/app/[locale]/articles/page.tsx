@@ -6,7 +6,7 @@ import { FeaturedArticleCard } from "@/components/article/FeaturedArticleCard";
 import { ArticleCard } from "@/components/article/ArticleCard";
 import { getAllArticles } from "@/lib/sanity/queries";
 export const metadata = {
-  title: "Editorial | Xmedia Magazine",
+  title: "Editorial | ZINA Magazine",
   description: "Explore our latest cultural and design stories.",
 };
 

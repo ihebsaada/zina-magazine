@@ -37,7 +37,7 @@ export function ArticleCard({
       <Link
         href={`/${locale}/articles/${article.slug}`}
         className={cn(
-          "block w-full overflow-hidden bg-[var(--color-ink-100)] relative mb-6",
+          "block w-full overflow-hidden bg-[var(--color-ink-100)] relative mb-5",
           aspectClasses[aspectRatio],
         )}
       >
@@ -45,12 +45,14 @@ export function ArticleCard({
           src={article.coverImage}
           alt={article.coverImageAlt || article.title}
           fill
-          className="object-cover transition-transform duration-700 ease-[var(--ease-editorial)] group-hover:scale-[1.03]"
+          className="object-cover transition-transform duration-[var(--duration-slow)] ease-[var(--ease-out-expo)] group-hover:scale-[1.04]"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
         />
+        {/* Vignette on hover */}
+        <div className="absolute inset-0 bg-[var(--color-ink-950)] opacity-0 group-hover:opacity-[0.06] transition-opacity duration-[var(--duration-base)] pointer-events-none" />
       </Link>
 
-      {/* ── Contenu ───────────────────────────────────────────────────── */}
+      {/* ── Content ───────────────────────────────────────────────────── */}
       <div className="flex flex-col items-start flex-1 min-h-[12.5rem]">
         <Link
           href={`/${locale}/categories/${article.category.slug}`}
@@ -63,13 +65,13 @@ export function ArticleCard({
           href={`/${locale}/articles/${article.slug}`}
           className="block w-full"
         >
-          <h3 className="font-editorial text-[var(--text-headline)] leading-[1.3] text-[var(--color-ink-950)] group-hover:text-[var(--color-oree)] transition-colors line-clamp-2 mb-4">
+          <h3 className="font-editorial text-[var(--text-headline)] leading-[1.25] text-[var(--color-ink-950)] group-hover:text-[var(--color-oree-dark)] transition-colors duration-[var(--duration-base)] line-clamp-2 mb-4">
             {article.title}
           </h3>
         </Link>
 
-        {/* Repousse la meta en bas si les titres ont des tailles différentes */}
-        <div className="mt-auto pt-4 w-full">
+        {/* Push meta to bottom */}
+        <div className="mt-auto pt-4 w-full border-t border-[var(--color-ink-100)]">
           <ArticleMeta
             author={article.author}
             publishedAt={article.publishedAt}
@@ -82,3 +84,4 @@ export function ArticleCard({
     </article>
   );
 }
+

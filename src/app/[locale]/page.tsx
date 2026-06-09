@@ -13,6 +13,7 @@ import {
   getFeaturedArticle,
   getLatestArticles,
   getArticlesByCategory,
+  getHomepageSettings,
 } from "@/lib/sanity/queries";
 
 export default async function HomePage({
@@ -26,31 +27,39 @@ export default async function HomePage({
   const resolved = locale as Locale;
   const dict = await getDictionary(resolved);
 
-  // ─── Fetching Sanity ──
-  const featuredArticle = await getFeaturedArticle(resolved);
-  const latestArticles = await getLatestArticles(
-    resolved,
-    featuredArticle?._id,
-    3,
-  );
-  const cultureArticlesRaw = await getArticlesByCategory("culture", resolved);
+  // Fetching Sanity
+  // Step 1: featured article and site settings are mutually independent
+  const [featuredArticle, highlightSettings] = await Promise.all([
+    getFeaturedArticle(resolved),
+    getHomepageSettings(resolved),
+  ]);
 
-  const cultureArticles = cultureArticlesRaw.filter(
+  // Fallback: if no category is configured in siteSettings, use "culture".
+  const highlightSlug = highlightSettings?.slug ?? "culture";
+  const highlightTitle = highlightSettings?.title ?? dict.nav.culture;
+
+  // Step 2: latest and highlight are independent of each other
+  const [latestArticles, highlightArticlesRaw] = await Promise.all([
+    getLatestArticles(resolved, featuredArticle?._id, 4),
+    getArticlesByCategory(highlightSlug, resolved),
+  ]);
+
+  const highlightArticles = highlightArticlesRaw.filter(
     (art) =>
       art._id !== featuredArticle?._id &&
       !latestArticles.find((l) => l._id === art._id),
   );
 
-  const hasCultureHighlight = cultureArticles.length > 0;
+  const hasHighlight = highlightArticles.length > 0;
 
   return (
     <main className="flex-1 pb-32">
-      {/* ── AD BANNER ───────────────────────── */}
+      {/* AD BANNER */}
       <section className="mb-8 lg:mb-12">
-        <AdBanner />
+        <AdBanner locale={resolved} />
       </section>
 
-      {/* ── 1. HERO SECTION ─────────────────────────────────────────────── */}
+      {/* 1. HERO SECTION */}
       <section className="pt-8 pb-16 lg:pt-16 lg:pb-24">
         <Container>
           {featuredArticle && (
@@ -63,37 +72,37 @@ export default async function HomePage({
         </Container>
       </section>
 
-      {/* ── 2. LATEST ARTICLES (GRID) ───────────────────────────────────── */}
+      {/* 2. LATEST ARTICLES (GRID) */}
       <section className="py-16">
         <Container>
           <SectionHeader
             title={dict.home.latestArticles}
             action={<Button variant="link">{dict.nav.readMore}</Button>}
           />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-16">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-16">
             {latestArticles.map((article, index) => (
               <ArticleCard
                 key={article._id}
                 article={article}
                 locale={resolved}
                 dict={dict}
-                aspectRatio={index === 0 ? "landscape" : "portrait"} // Casse la monotonie
+                aspectRatio={index === 0 ? "landscape" : "portrait"}
               />
             ))}
           </div>
         </Container>
       </section>
 
-      {/* ── 3. CATEGORY HIGHLIGHT ───────────────────────────────────────── */}
-      {hasCultureHighlight && (
+      {/* 3. CATEGORY HIGHLIGHT */}
+      {hasHighlight && (
         <section className="py-24 bg-[var(--color-paper)] mt-16">
           <Container>
             <SectionHeader
-              title={dict.nav.culture}
+              title={highlightTitle}
               action={<Button variant="outline">{dict.nav.readMore}</Button>}
             />
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-              {cultureArticles.map((article) => (
+              {highlightArticles.map((article) => (
                 <HorizontalArticleCard
                   key={article._id}
                   article={article}
@@ -106,12 +115,13 @@ export default async function HomePage({
         </section>
       )}
 
-      {/* ── 4. NEWSLETTER ───────────────────────────────────────────────── */}
-      <section className="py-32">
+      {/* 4. NEWSLETTER */}
+      <section id="newsletter" className="mt-16 py-24 bg-[var(--color-ink-950)] border-t border-[var(--color-ink-900)]">
         <Container variant="prose" className="text-center">
-          <NewsletterForm locale={resolved} dict={dict} />
+          <NewsletterForm locale={resolved} dict={dict} theme="dark" />
         </Container>
       </section>
     </main>
   );
 }
+

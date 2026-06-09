@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════════════════════════════════════
-   XMEDIA MAGAZINE — DESIGN SYSTEM
-   v1.0 — Base éditoriale premium
+   ZINA MAGAZINE — DESIGN SYSTEM
+   v1.1 — Elevated editorial
    ══════════════════════════════════════════════════════════════════════════════
 
    Palette : Parchment & Ink (neutre chaud) + Orée (doré rosé) + Encre profonde
@@ -63,6 +63,7 @@
   --text-body      : 1.0625rem;                      /* Corps de texte */
   --text-caption   : 0.875rem;                       /* Légende */
   --text-label     : 0.6875rem;                      /* Catégorie / label */
+  --text-nav       : 0.8125rem;                      /* Nav links — lisible */
 
   --leading-tight  : 1.15;
   --leading-snug   : 1.3;
@@ -87,12 +88,20 @@
   --container-wide  : 1140px;        /* Grille éditoriale */
   --container-max   : 1320px;        /* Max site */
 
+  /* ── Rayons ─────────────────────────────────────────────────────────────── */
+
+  --radius-card     : 0px;           /* Éditorial = carré */
+  --radius-pill     : 999px;
+
   /* ── Transitions ────────────────────────────────────────────────────────── */
 
   --ease-editorial : cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ease-out-expo  : cubic-bezier(0.16, 1, 0.3, 1);
   --duration-fast  : 180ms;
   --duration-base  : 280ms;
+  --duration-slow  : 480ms;
 }
+
 
 /* ── Reset & Base ──────────────────────────────────────────────────────────── */
 
@@ -276,9 +285,9 @@
   /* Lien nav avec soulignement animé */
   .nav-link {
     position      : relative;
-    font-size     : var(--text-label);
+    font-size     : var(--text-nav);   /* 13px — lisible sans être lourd */
     font-weight   : 500;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
     color         : var(--color-ink-700);
     transition    : color var(--duration-fast) var(--ease-editorial);
@@ -289,12 +298,12 @@
     position        : absolute;
     inset-inline-start: 0;
     inset-inline-end  : 0;
-    bottom          : -3px;
+    bottom          : -4px;
     height          : 1px;
     background-color: var(--color-oree);
     transform       : scaleX(0);
     transform-origin: center;
-    transition      : transform var(--duration-base) var(--ease-editorial);
+    transition      : transform var(--duration-base) var(--ease-out-expo);
   }
 
   .nav-link:hover,
@@ -306,6 +315,7 @@
   .nav-link[aria-current="page"]::after {
     transform: scaleX(1);
   }
+
 
   /* ── Prose éditoriale (rendu des articles) ──────────────────────────────── */
 

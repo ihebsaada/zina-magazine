@@ -1,17 +1,19 @@
 /**
  * api/comments/route.ts
  *
- * GET    ?articleId=xxx → liste des commentaires approuvés de la locale courante
- * POST   {articleId, authorName, body} → ajouter un commentaire
- * DELETE {id} → supprimer un commentaire (admin uniquement)
+ * GET    ?articleId=xxx         → liste des commentaires approuvés de la locale courante
+ * POST   {articleId, authorName, body} → ajouter un commentaire (is_approved=false par défaut)
+ * PATCH  {id, is_approved}      → approuver / rejeter un commentaire (admin uniquement)
+ * DELETE {id}                   → supprimer un commentaire (admin uniquement)
  */
 import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { supabase } from "@/lib/supabase/client";
+import { createServerSupabase, createServiceSupabase } from "@/lib/supabase/server";
 import type { TablesInsert } from "@/lib/supabase/types";
 import { authOptions } from "@/app/api/auth/[...nextauth]/route";
 
-// Mots-clés indésirables (modération basique côté serveur)
+// ── Modération basique côté serveur ──────────────────────────────────────────
+
 const BLOCKED_PATTERNS = [
   /https?:\/\//i,
   /\b(spam|casino|viagra|crypto|NFT)\b/i,
@@ -25,15 +27,24 @@ function normalizeLocale(value: string | null): "en" | "ar" {
   return value === "ar" ? "ar" : "en";
 }
 
+// ── Types ────────────────────────────────────────────────────────────────────
+
 type CreateCommentBody = {
   articleId?: string;
   authorName?: string;
   body?: string;
 };
 
+type PatchCommentBody = {
+  id?: string;
+  is_approved?: boolean;
+};
+
 type DeleteCommentBody = {
   id?: string;
 };
+
+// ── GET ──────────────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
   const locale = normalizeLocale(request.headers.get("x-locale"));
@@ -48,6 +59,8 @@ export async function GET(request: NextRequest) {
       { status: 400 },
     );
   }
+
+  const supabase = createServerSupabase();
 
   const { data, error } = await supabase
     .from("comments")
@@ -64,6 +77,8 @@ export async function GET(request: NextRequest) {
 
   return NextResponse.json({ comments: data ?? [] });
 }
+
+// ── POST ─────────────────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest) {
   const locale = normalizeLocale(request.headers.get("x-locale"));
@@ -122,21 +137,84 @@ export async function POST(request: NextRequest) {
     author_name: authorName,
     body: commentBody,
     locale,
-    is_approved: true,
+    is_approved: false, // En attente de modération
   };
 
-  const { data, error } = await supabase
+  const supabase = createServerSupabase();
+
+  const { error } = await supabase
     .from("comments")
-    .insert(insertPayload)
-    .select("id, author_name, body, locale, created_at")
-    .single();
+    .insert(insertPayload);
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json({ comment: data }, { status: 201 });
+  return NextResponse.json(
+    {
+      success: true,
+      message: t(
+        "Comment submitted. It will appear after approval.",
+        "تم إرسال التعليق. سيظهر بعد الموافقة."
+      ),
+    },
+    { status: 201 }
+  );
 }
+
+// ── PATCH ────────────────────────────────────────────────────────────────────
+
+export async function PATCH(request: NextRequest) {
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+  if (!user || user.role !== "admin") {
+    return NextResponse.json(
+      { error_en: "Unauthorized", error_ar: "غير مصرح" },
+      { status: 401 },
+    );
+  }
+
+  const body = (await request.json()) as PatchCommentBody;
+  const id = body.id?.trim();
+  const isApproved = body.is_approved;
+
+  if (!id) {
+    return NextResponse.json(
+      { error_en: "Comment ID required", error_ar: "معرف التعليق مطلوب" },
+      { status: 400 },
+    );
+  }
+
+  if (typeof isApproved !== "boolean") {
+    return NextResponse.json(
+      {
+        error_en: "is_approved (boolean) required",
+        error_ar: "الحقل is_approved (منطقي) مطلوب",
+      },
+      { status: 400 },
+    );
+  }
+
+  const supabase = createServiceSupabase();
+
+  const { data, error } = await supabase
+    .from("comments")
+    .update({ is_approved: isApproved })
+    .eq("id", id)
+    .select("id, is_approved")
+    .single();
+
+  if (error) {
+    return NextResponse.json(
+      { error_en: error.message, error_ar: error.message },
+      { status: 500 },
+    );
+  }
+
+  return NextResponse.json({ comment: data }, { status: 200 });
+}
+
+// ── DELETE ───────────────────────────────────────────────────────────────────
 
 export async function DELETE(request: NextRequest) {
   const session = await getServerSession(authOptions);
@@ -157,6 +235,8 @@ export async function DELETE(request: NextRequest) {
       { status: 400 },
     );
   }
+
+  const supabase = createServiceSupabase();
 
   const { error } = await supabase.from("comments").delete().eq("id", id);
 

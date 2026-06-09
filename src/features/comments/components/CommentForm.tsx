@@ -7,6 +7,8 @@ import type { CommentReturnData } from "@/features/comments/actions";
 
 interface CommentFormProps {
   articleId: string;
+  articleSlug?: string;
+  articleTitle?: string;
   locale: "en" | "ar";
   t: {
     addComment: string;
@@ -21,9 +23,10 @@ interface CommentFormProps {
 
 export function CommentForm({
   articleId,
+  articleSlug,
+  articleTitle,
   locale,
   t,
-  onSuccess,
   onCancel,
 }: CommentFormProps) {
   const isRTL = locale === "ar";
@@ -51,28 +54,55 @@ export function CommentForm({
       formData.append("authorName", authorName.trim());
       formData.append("body", body.trim());
       formData.append("locale", locale);
+      if (articleSlug) formData.append("articleSlug", articleSlug);
+      if (articleTitle) formData.append("articleTitle", articleTitle);
 
       const result = await addComment({}, formData);
 
-      if (result.success && result.comment) {
+      if (result.success) {
         setSubmitStatus("success");
         setSubmitMessage(
-          isRTL ? "تم نشر تعليقك بنجاح!" : "Your comment has been posted!",
+          result.message ||
+            (isRTL
+              ? "تم إرسال التعليق. سيظهر بعد الموافقة."
+              : "Comment submitted. It will appear after approval.")
         );
         setAuthorName("");
         setBody("");
         formRef.current?.reset();
-        onSuccess(result.comment);
-        setTimeout(() => onCancel(), 2000);
+        // Do NOT call onSuccess(result.comment) as the comment is pending approval
+        setTimeout(() => onCancel(), 2500);
       } else {
         setSubmitStatus("error");
+        const errStr = result.error || "";
+        const isFetchError =
+          errStr.toLowerCase().includes("fetch failed") ||
+          errStr.toLowerCase().includes("typeerror") ||
+          errStr.toLowerCase().includes("failed to fetch");
+
         setSubmitMessage(
-          result.error ?? (isRTL ? "حدث خطأ ما." : "Something went wrong."),
+          isFetchError
+            ? (isRTL
+                ? "تعذر إرسال التعليق. يرجى المحاولة مرة أخرى."
+                : "Unable to send comment. Please try again.")
+            : (result.error ?? (isRTL ? "حدث خطأ ما." : "Something went wrong.")),
         );
       }
-    } catch {
+    } catch (err) {
       setSubmitStatus("error");
-      setSubmitMessage(isRTL ? "فشل الاتصال بالخادم." : "Connection failed.");
+      const errStr = err instanceof Error ? err.message : String(err);
+      const isFetchError =
+        errStr.toLowerCase().includes("fetch failed") ||
+        errStr.toLowerCase().includes("typeerror") ||
+        errStr.toLowerCase().includes("failed to fetch");
+
+      setSubmitMessage(
+        isFetchError
+          ? (isRTL
+              ? "تعذر إرسال التعليق. يرجى المحاولة مرة أخرى."
+              : "Unable to send comment. Please try again.")
+          : (isRTL ? "فشل الاتصال بالخادم." : "Connection failed."),
+      );
     } finally {
       setSubmitting(false);
     }

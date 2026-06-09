@@ -72,7 +72,7 @@ function LoginContent() {
             margin: 0,
           }}
         >
-          Xmedia Admin
+          ZINA Admin
         </h1>
         <p
           style={{
@@ -215,7 +215,7 @@ function LoginContent() {
           marginTop: "1.5rem",
         }}
       >
-        Accès réservé aux administrateurs Xmedia
+        Accès réservé aux administrateurs ZINA
       </p>
     </div>
   );
@@ -223,22 +223,20 @@ function LoginContent() {
 
 export default function AdminLoginPage() {
   return (
-    <html lang="en">
-      <body
-        style={{
-          background: "#f8f5f0",
-          minHeight: "100dvh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          fontFamily: "system-ui, sans-serif",
-        }}
-      >
-        <Suspense fallback={<div>Chargement...</div>}>
-          <LoginContent />
-        </Suspense>
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </body>
-    </html>
+    <div
+      style={{
+        background: "#f8f5f0",
+        minHeight: "100dvh",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      <Suspense fallback={<div>Chargement...</div>}>
+        <LoginContent />
+      </Suspense>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+    </div>
   );
 }

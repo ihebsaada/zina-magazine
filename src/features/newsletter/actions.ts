@@ -1,39 +1,50 @@
 "use server";
 
-/**
- * src/actions/newsletter.ts
- *
- * Exemple de Server Action pour l'inscription à la newsletter.
- * Remplace progressivement les fetch(/api/newsletter).
- */
-
 import { createServerSupabase } from "@/lib/supabase/server";
 import type { TablesInsert } from "@/lib/supabase/types";
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
-// Type de retour standardisé pour la gestion UI (succès / erreur)
+export type NewsletterActionCode =
+  | "success"
+  | "duplicate"
+  | "missing_email"
+  | "invalid_email"
+  | "error";
+
 export type ActionState = {
-  success?: boolean;
+  success: boolean;
+  code: NewsletterActionCode;
   message?: string;
   error?: string;
 };
 
 export async function subscribeToNewsletter(
-  prevState: ActionState,
+  prevState: ActionState | Record<string, never>,
   formData: FormData,
 ): Promise<ActionState> {
-  const rawEmail = formData.get("email") as string | null;
-  const locale = (formData.get("locale") as string) === "ar" ? "ar" : "en";
+  const rawEmail = formData.get("email");
+  const locale = formData.get("locale") === "ar" ? "ar" : "en";
 
   if (!rawEmail || typeof rawEmail !== "string") {
-    return { error: "L'adresse email est requise." };
+    return {
+      success: false,
+      code: "missing_email",
+      error: locale === "ar" ? "البريد الإلكتروني مطلوب." : "Email is required.",
+    };
   }
 
   const normalizedEmail = rawEmail.trim().toLowerCase();
 
   if (!EMAIL_RE.test(normalizedEmail)) {
-    return { error: "Adresse email invalide." };
+    return {
+      success: false,
+      code: "invalid_email",
+      error:
+        locale === "ar"
+          ? "البريد الإلكتروني غير صالح."
+          : "Invalid email address.",
+    };
   }
 
   const insertPayload: TablesInsert<"newsletter"> = {
@@ -42,19 +53,55 @@ export async function subscribeToNewsletter(
     confirmed: false,
   };
 
-  // Instanciation sécurisée sur le serveur, fraîche d'exécution
   const supabase = createServerSupabase();
 
-  // Insertion Base de Données
-  const { error } = await supabase.from("newsletter").insert(insertPayload);
+  try {
+    const { error } = await supabase.from("newsletter").insert(insertPayload);
 
-  if (error) {
-    // 23505 est le code Supabase (Postgres) pour une duplication "unique"
-    if (error.code === "23505") {
-      return { success: true, message: "Vous êtes déjà inscrit !" };
+    if (error) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[newsletter action]", error);
+      }
+
+      if (error.code === "23505") {
+        return {
+          success: true,
+          code: "duplicate",
+          message:
+            locale === "ar" ? "أنت مشترك بالفعل." : "You're already subscribed.",
+        };
+      }
+
+      return {
+        success: false,
+        code: "error",
+        error:
+          locale === "ar"
+            ? "حدث خطأ. حاول مجدداً."
+            : "Something went wrong. Please retry.",
+      };
     }
-    return { error: "Une erreur technique est survenue." };
-  }
 
-  return { success: true, message: "Inscription réussie ! Merci." };
+    return {
+      success: true,
+      code: "success",
+      message:
+        locale === "ar"
+          ? "شكراً! تم تسجيلك بنجاح."
+          : "Thank you! You're subscribed.",
+    };
+  } catch (err) {
+    if (process.env.NODE_ENV === "development") {
+      console.error("[newsletter action unexpected]", err);
+    }
+
+    return {
+      success: false,
+      code: "error",
+      error:
+        locale === "ar"
+          ? "تعذر الاشتراك الآن. حاول مجدداً."
+          : "Unable to subscribe right now. Please try again.",
+    };
+  }
 }

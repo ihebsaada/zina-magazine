@@ -38,7 +38,7 @@ export async function generateMetadata({
   if (!article) return {};
 
   return {
-    title: `${article.title} | Xmedia Magazine`,
+    title: `${article.title} | ZINA Magazine`,
     description: article.excerpt,
   };
 }
@@ -156,6 +156,8 @@ export default async function ArticleDetailPage({
 
           <InteractionsUI
             articleId={article._id}
+            articleSlug={slug}
+            articleTitle={article.title}
             locale={resolved}
             dict={dict}
             initialComments={initialComments}

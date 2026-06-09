@@ -8,11 +8,14 @@ import type { CommentReturnData } from "@/features/comments/actions";
 
 interface CommentsSectionProps {
   articleId: string;
+  articleSlug?: string;
+  articleTitle?: string;
   locale: "en" | "ar";
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   dict: any;
   initialComments?: CommentReturnData[];
   children?: React.ReactNode;
+  shareSlot?: React.ReactNode;
 }
 
 function formatDate(iso: string, locale: string) {
@@ -25,10 +28,13 @@ function formatDate(iso: string, locale: string) {
 
 export function CommentsSection({
   articleId,
+  articleSlug,
+  articleTitle,
   locale,
   dict,
   children,
   initialComments,
+  shareSlot,
 }: CommentsSectionProps) {
   const isRTL = locale === "ar";
 
@@ -74,11 +80,15 @@ export function CommentsSection({
             {t.comments}
           </span>
         </button>
+
+        {shareSlot}
       </div>
 
       {showForm && (
         <CommentForm
           articleId={articleId}
+          articleSlug={articleSlug}
+          articleTitle={articleTitle}
           locale={locale}
           t={t}
           onSuccess={handleCommentAdded}

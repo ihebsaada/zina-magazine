@@ -4,7 +4,7 @@
  * POST {email, locale} → inscrire un email à la newsletter
  */
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { createServerSupabase } from "@/lib/supabase/server";
 import type { TablesInsert } from "@/lib/supabase/types";
 
 // Validation email simple
@@ -42,6 +42,8 @@ export async function POST(request: NextRequest) {
     locale,
     confirmed: false,
   };
+
+  const supabase = createServerSupabase();
 
   const { error } = await supabase.from("newsletter").insert(insertPayload);
 

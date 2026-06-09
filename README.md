@@ -1,4 +1,4 @@
-# Xmedia Magazine
+# ZINA Magazine
 
 A modern magazine platform built with Next.js App Router, Server Components, and Supabase.
 
