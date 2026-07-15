@@ -33,7 +33,7 @@ export default async function HomePage({
   const [featuredArticle, highlightSettings, ads] = await Promise.all([
     getFeaturedArticle(resolved),
     getHomepageSettings(resolved),
-    getActiveAds(resolved),
+    getActiveAds(resolved).catch(() => []),
   ]);
 
   // Fallback: if no category is configured in siteSettings, use "culture".
@@ -118,7 +118,10 @@ export default async function HomePage({
       )}
 
       {/* 4. NEWSLETTER */}
-      <section id="newsletter" className="mt-16 py-24 bg-[var(--color-ink-950)] border-t border-[var(--color-ink-900)]">
+      <section
+        id="newsletter"
+        className="mt-16 py-24 bg-[var(--color-ink-950)] border-t border-[var(--color-ink-900)]"
+      >
         <Container variant="prose" className="text-center">
           <NewsletterForm locale={resolved} dict={dict} theme="dark" />
         </Container>
@@ -126,4 +129,3 @@ export default async function HomePage({
     </main>
   );
 }
-

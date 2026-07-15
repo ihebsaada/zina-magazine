@@ -87,6 +87,18 @@ export function AdBanner({ locale, ads }: AdBannerProps) {
           </div>
         </div>
 
+        {/* Full-slide click-through link — placed after image/gradients/content so it
+            sits above them (DOM order), and before the nav buttons so those stay on top. */}
+        {currentAd.link && (
+          <a
+            href={currentAd.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="absolute inset-0"
+            aria-label={currentAd.title}
+          />
+        )}
+
         {/* LEFT BUTTON = PREVIOUS */}
         <div
           className={cn(
