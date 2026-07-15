@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
 import type { ResolvedAd } from "@/lib/sanity/queries";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, ArrowUpRight } from "lucide-react";
 
 interface AdBannerProps {
   locale: Locale;
@@ -83,21 +83,21 @@ export function AdBanner({ locale, ads }: AdBannerProps) {
               <p className="mt-3 text-white/80">
                 {currentAd.description}
               </p>
+
+              {currentAd.link && (
+                <a
+                  href={currentAd.link}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center gap-2 bg-[var(--color-oree)] px-6 py-3 font-body text-[0.75rem] font-medium uppercase tracking-[0.14em] text-[var(--color-parchment)] transition-colors duration-[var(--duration-base)] hover:bg-[var(--color-oree-dark)]"
+                >
+                  {copy.cta}
+                  <ArrowUpRight size={14} strokeWidth={1.75} />
+                </a>
+              )}
             </div>
           </div>
         </div>
-
-        {/* Full-slide click-through link — placed after image/gradients/content so it
-            sits above them (DOM order), and before the nav buttons so those stay on top. */}
-        {currentAd.link && (
-          <a
-            href={currentAd.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="absolute inset-0"
-            aria-label={currentAd.title}
-          />
-        )}
 
         {/* LEFT BUTTON = PREVIOUS */}
         <div
