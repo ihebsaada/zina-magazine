@@ -333,22 +333,6 @@
     text-wrap: pretty;
   }
 
-  /* Lettrine — première lettre du premier paragraphe */
-  .prose-editorial > p:first-of-type::first-letter {
-    float        : inline-start;
-    font-family  : var(--font-editorial);
-    font-size    : 4.25em;
-    line-height  : 0.78;
-    margin-inline-end  : 0.08em;
-    margin-top   : 0.05em;
-    color        : var(--color-oree);
-    font-weight  : 700;
-  }
-
-  [dir="rtl"] .prose-editorial > p:first-of-type::first-letter {
-    font-family: var(--font-arabic);
-  }
-
   .prose-editorial blockquote {
     border-inline-start: 3px solid var(--color-oree);
     padding-inline-start: var(--space-6);

@@ -8,6 +8,7 @@ import author from './schemas/author'
 import tag from './schemas/tag'
 import siteSettings from './schemas/siteSettings'
 import adBanner from './schemas/adBanner'
+import aboutPage from './schemas/aboutPage'
 
 import { structure } from './sanity.structure'
 import { createUnfeatPreviousAction } from './actions/unfeatPrevious'
@@ -30,13 +31,13 @@ export default defineConfig({
   ],
 
   schema: {
-    types: [article, category, author, tag, siteSettings, adBanner],
+    types: [article, category, author, tag, siteSettings, adBanner, aboutPage],
   },
 
   document: {
     actions: (prev, ctx) => {
-      // Singleton rules: prevent create, delete, duplicate, unpublish for siteSettings
-      if (ctx.schemaType === 'siteSettings') {
+      // Singleton rules: prevent create, delete, duplicate, unpublish for siteSettings/aboutPage
+      if (ctx.schemaType === 'siteSettings' || ctx.schemaType === 'aboutPage') {
         const singletonActions = new Set(['publish', 'discardChanges', 'restore'])
         return prev.filter(({ action }) => action && singletonActions.has(action))
       }

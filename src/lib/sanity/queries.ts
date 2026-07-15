@@ -467,6 +467,103 @@ export async function getHeaderCategories(locale: Locale) {
   return getMainCategoriesWithSubs(locale);
 }
 
+export interface FooterSettings {
+  categories: ResolvedCategory[];
+}
+
+/**
+ * Fetches the footer "Editorial" category links, sourced from the
+ * siteSettings singleton.
+ *
+ * Fallback: if footerCategories is empty, reuses the same main-category list
+ * as the header nav (getMainCategoriesWithSubs).
+ */
+export async function getFooterSettings(locale: Locale): Promise<FooterSettings> {
+  const query = `*[_type == "siteSettings" && _id == "siteSettings"][0] {
+    "footerCategories": footerCategories[]->{
+      ${CATEGORY_FIELDS}
+    }
+  }`;
+
+  const raw = await sanityClient.fetch<{
+    footerCategories: SanityCategory[] | null;
+  } | null>(query, {}, { next: { revalidate: 300 } });
+
+  const categories =
+    raw?.footerCategories && raw.footerCategories.length > 0
+      ? raw.footerCategories.map((c) => resolveCategory(c, locale))
+      : await getMainCategoriesWithSubs(locale);
+
+  return { categories };
+}
+
+// ─── About Page ───────────────────────────────────────────────────────────────
+
+export interface SanityAboutPage {
+  title_en: string;
+  title_ar: string;
+  mission_en: string;
+  mission_ar: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body_en?: any[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body_ar?: any[];
+  heroImage?: { asset: { _ref: string } };
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+export interface ResolvedAboutPage {
+  title: string;
+  mission: string;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  body: any[];
+  heroImage?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+}
+
+export function resolveAboutPage(
+  raw: SanityAboutPage,
+  locale: Locale,
+): ResolvedAboutPage {
+  const isAr = locale === "ar";
+  return {
+    title: isAr ? raw.title_ar : raw.title_en,
+    mission: isAr ? raw.mission_ar : raw.mission_en,
+    body: isAr ? (raw.body_ar ?? []) : (raw.body_en ?? []),
+    heroImage: raw.heroImage?.asset
+      ? urlFor(raw.heroImage).width(1600).height(900).fit("crop").url()
+      : undefined,
+    seoTitle: raw.seoTitle,
+    seoDescription: raw.seoDescription,
+  };
+}
+
+/** The singleton About Page document, resolved for the active locale. */
+export async function getAboutPage(locale: Locale): Promise<ResolvedAboutPage | null> {
+  const query = `*[_type == "aboutPage" && _id == "aboutPage"][0] {
+    title_en,
+    title_ar,
+    mission_en,
+    mission_ar,
+    body_en,
+    body_ar,
+    heroImage,
+    seoTitle,
+    seoDescription
+  }`;
+
+  const raw: SanityAboutPage | null = await sanityClient.fetch(
+    query,
+    {},
+    { next: { revalidate: 300 } },
+  );
+
+  if (!raw) return null;
+  return resolveAboutPage(raw, locale);
+}
+
 /**
  * Full-text article search across title and excerpt for the given locale.
  * Uses GROQ string matching (case-insensitive contains) — no additional plugin needed.

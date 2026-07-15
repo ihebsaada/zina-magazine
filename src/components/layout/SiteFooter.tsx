@@ -4,13 +4,16 @@ import { Container } from "@/components/ui/Container";
 import { type Dictionary } from "@/lib/dictionaries";
 import { type Locale } from "@/lib/i18n";
 import { cn } from "@/lib/utils";
+import { getFooterSettings } from "@/lib/sanity/queries";
 
 interface SiteFooterProps {
   locale: Locale;
   dict: Dictionary;
 }
 
-export function SiteFooter({ locale, dict }: SiteFooterProps) {
+export async function SiteFooter({ locale, dict }: SiteFooterProps) {
+  const { categories: footerCategories } = await getFooterSettings(locale);
+
   const isArabic = locale === "ar";
 
   const sectionTitleClass = cn(
@@ -60,30 +63,16 @@ export function SiteFooter({ locale, dict }: SiteFooterProps) {
             </h4>
 
             <ul className="space-y-4">
-              <li>
-                <Link
-                  href={`/${locale}/categories/culture`}
-                  className={footerLinkClass}
-                >
-                  {dict.nav.culture}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href={`/${locale}/categories/arts`}
-                  className={footerLinkClass}
-                >
-                  {dict.nav.arts}
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href={`/${locale}/categories/society`}
-                  className={footerLinkClass}
-                >
-                  {dict.nav.society}
-                </Link>
-              </li>
+              {footerCategories.map((cat) => (
+                <li key={cat._id}>
+                  <Link
+                    href={`/${locale}/categories/${cat.slug}`}
+                    className={footerLinkClass}
+                  >
+                    {cat.title}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
 

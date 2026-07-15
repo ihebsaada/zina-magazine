@@ -8,6 +8,7 @@
  * Current fields:
  *  - homepageCategoryHighlight  — top-level category in homepage spotlight
  *  - headerCategories           — ordered array of top-level categories for header nav
+ *  - footerCategories           — ordered array of top-level categories for footer "Editorial" column
  */
 
 import { defineField, defineType, defineArrayMember } from 'sanity'
@@ -54,6 +55,27 @@ export default defineType({
         }),
       ],
       validation: (Rule) => Rule.max(4).unique(),
+    }),
+
+    // ── Footer Navigation ─────────────────────────────────────────────────────
+    defineField({
+      name: 'footerCategories',
+      title: 'Footer Editorial Categories',
+      type: 'array',
+      description:
+        'Top-level categories shown in the footer "Editorial" column. Drag to reorder. Leave empty to fall back to the same categories as the header.',
+      of: [
+        defineArrayMember({
+          type: 'reference',
+          to: [{ type: 'category' }],
+          options: {
+            // Only allow top-level categories (no parent defined)
+            filter: '!defined(parent)',
+            disableNew: true,
+          },
+        }),
+      ],
+      validation: (Rule) => Rule.max(6).unique(),
     }),
   ],
 

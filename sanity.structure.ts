@@ -25,6 +25,7 @@ import {
   TagIcon,           // Tags
   CogIcon,           // Site Settings
   ImagesIcon,        // Ad Banners
+  DocumentIcon,      // About Page
 } from '@sanity/icons'
 
 // Matches your NEXT_PUBLIC_SANITY_API_VERSION or any recent stable date.
@@ -71,6 +72,17 @@ export const structure: StructureResolver = (S) => {
             .schemaType('siteSettings')
             .documentId('siteSettings')
             .title('Site Settings'),
+        ),
+
+      // ── About Page singleton ─────────────────────────────────────────────────
+      S.listItem()
+        .title('About Page')
+        .icon(DocumentIcon)
+        .child(
+          S.document()
+            .schemaType('aboutPage')
+            .documentId('aboutPage')
+            .title('About Page'),
         ),
 
       S.divider(),
