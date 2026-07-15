@@ -7,6 +7,7 @@ import category from './schemas/category'
 import author from './schemas/author'
 import tag from './schemas/tag'
 import siteSettings from './schemas/siteSettings'
+import adBanner from './schemas/adBanner'
 
 import { structure } from './sanity.structure'
 import { createUnfeatPreviousAction } from './actions/unfeatPrevious'
@@ -29,7 +30,7 @@ export default defineConfig({
   ],
 
   schema: {
-    types: [article, category, author, tag, siteSettings],
+    types: [article, category, author, tag, siteSettings, adBanner],
   },
 
   document: {

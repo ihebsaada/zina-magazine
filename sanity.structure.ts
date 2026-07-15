@@ -24,6 +24,7 @@ import {
   UsersIcon,         // Authors
   TagIcon,           // Tags
   CogIcon,           // Site Settings
+  ImagesIcon,        // Ad Banners
 } from '@sanity/icons'
 
 // Matches your NEXT_PUBLIC_SANITY_API_VERSION or any recent stable date.
@@ -106,6 +107,15 @@ export const structure: StructureResolver = (S) => {
         .child(
           S.documentTypeList('tag')
             .title('Tags')
+        ),
+
+      S.listItem()
+        .title('Ad Banners')
+        .icon(ImagesIcon)
+        .child(
+          S.documentTypeList('adBanner')
+            .title('Ad Banners')
+            .defaultOrdering([{ field: 'order', direction: 'asc' }])
         ),
     ])
 }

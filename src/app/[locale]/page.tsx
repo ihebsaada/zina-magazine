@@ -14,6 +14,7 @@ import {
   getLatestArticles,
   getArticlesByCategory,
   getHomepageSettings,
+  getActiveAds,
 } from "@/lib/sanity/queries";
 
 export default async function HomePage({
@@ -28,10 +29,11 @@ export default async function HomePage({
   const dict = await getDictionary(resolved);
 
   // Fetching Sanity
-  // Step 1: featured article and site settings are mutually independent
-  const [featuredArticle, highlightSettings] = await Promise.all([
+  // Step 1: featured article, site settings and ad banners are mutually independent
+  const [featuredArticle, highlightSettings, ads] = await Promise.all([
     getFeaturedArticle(resolved),
     getHomepageSettings(resolved),
+    getActiveAds(resolved),
   ]);
 
   // Fallback: if no category is configured in siteSettings, use "culture".
@@ -56,7 +58,7 @@ export default async function HomePage({
     <main className="flex-1 pb-32">
       {/* AD BANNER */}
       <section className="mb-8 lg:mb-12">
-        <AdBanner locale={resolved} />
+        <AdBanner locale={resolved} ads={ads} />
       </section>
 
       {/* 1. HERO SECTION */}

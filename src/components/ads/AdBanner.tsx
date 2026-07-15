@@ -4,67 +4,29 @@ import Image from "next/image";
 import { useEffect, useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
 import type { Locale } from "@/lib/i18n";
+import type { ResolvedAd } from "@/lib/sanity/queries";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface AdBannerProps {
   locale: Locale;
+  ads: ResolvedAd[];
 }
 
-const ads = [
-  {
-    id: "ad-1",
-    image:
-      "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=2000&q=80",
-    title: {
-      en: "Timeless Craftsmanship",
-      ar: "حرفية خالدة",
-    },
-    description: {
-      en: "Discover precision and elegance in every detail.",
-      ar: "اكتشفي الدقة والأناقة في كل تفصيلة.",
-    },
-  },
-  {
-    id: "ad-2",
-    image:
-      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=2000&q=80",
-    title: {
-      en: "Modern Fashion",
-      ar: "موضة عصرية",
-    },
-    description: {
-      en: "Where minimalism meets bold expression.",
-      ar: "حيث تلتقي البساطة مع التعبير الجريء.",
-    },
-  },
-  {
-    id: "ad-3",
-    image:
-      "https://images.unsplash.com/photo-1505843513577-22bb7d21e455?w=2000&q=80",
-    title: {
-      en: "Architectural Vision",
-      ar: "رؤية معمارية",
-    },
-    description: {
-      en: "Spaces that redefine contemporary living.",
-      ar: "مساحات تعيد تعريف أسلوب الحياة المعاصر.",
-    },
-  },
-] as const;
-
-export function AdBanner({ locale }: AdBannerProps) {
+export function AdBanner({ locale, ads }: AdBannerProps) {
   const [index, setIndex] = useState(0);
 
   const isArabic = locale === "ar";
   const dir = isArabic ? "rtl" : "ltr";
 
   useEffect(() => {
+    if (ads.length === 0) return;
+
     const interval = setInterval(() => {
       setIndex((prev) => (prev + 1) % ads.length);
     }, 6000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [ads.length]);
 
   const copy = useMemo(
     () => ({
@@ -77,6 +39,8 @@ export function AdBanner({ locale }: AdBannerProps) {
     }),
     [isArabic],
   );
+
+  if (ads.length === 0) return null;
 
   const currentAd = ads[index];
 
@@ -97,7 +61,7 @@ export function AdBanner({ locale }: AdBannerProps) {
       <div className="relative aspect-[16/7] min-h-[280px] w-full sm:min-h-[320px] lg:min-h-[420px]">
         <Image
           src={currentAd.image}
-          alt={currentAd.title[locale]}
+          alt={currentAd.title}
           fill
           priority
           sizes="100vw"
@@ -113,11 +77,11 @@ export function AdBanner({ locale }: AdBannerProps) {
           <div className="w-full px-6 py-8 sm:px-8 md:px-12 lg:px-16">
             <div className="max-w-2xl">
               <h3 className="font-editorial text-white text-3xl sm:text-4xl lg:text-5xl">
-                {currentAd.title[locale]}
+                {currentAd.title}
               </h3>
 
               <p className="mt-3 text-white/80">
-                {currentAd.description[locale]}
+                {currentAd.description}
               </p>
             </div>
           </div>

@@ -50,6 +50,18 @@ export interface SanityArticle {
   body_ar?: any[];
 }
 
+export interface SanityAdBanner {
+  _id: string;
+  title_en: string;
+  title_ar: string;
+  description_en: string;
+  description_ar: string;
+  image: { asset: { _ref: string } };
+  link?: string;
+  order: number;
+  active: boolean;
+}
+
 export interface SanityCategory {
   _id: string;
   slug: string;
@@ -158,6 +170,27 @@ export function resolveCategory(raw: SanityCategory, locale: Locale): ResolvedCa
     subcategories: raw.subcategories
       ? raw.subcategories.map((sub) => resolveCategory(sub, locale))
       : [],
+  };
+}
+
+export interface ResolvedAd {
+  _id: string;
+  title: string;
+  description: string;
+  image: string;
+  link?: string;
+}
+
+export function resolveAdBanner(raw: SanityAdBanner, locale: Locale): ResolvedAd {
+  const isAr = locale === "ar";
+  return {
+    _id: raw._id,
+    title: isAr ? raw.title_ar : raw.title_en,
+    description: isAr ? raw.description_ar : raw.description_en,
+    image: raw.image?.asset
+      ? urlFor(raw.image).width(2000).url()
+      : "",
+    link: raw.link,
   };
 }
 
@@ -323,6 +356,33 @@ export async function getAllArticleSlugs(): Promise<string[]> {
 export async function getAllCategorySlugs(): Promise<string[]> {
   const query = `*[_type == "category"]{ "slug": slug.current }.slug`;
   return sanityClient.fetch(query);
+}
+
+// ─── Ad Banners ───────────────────────────────────────────────────────────────
+
+const AD_BANNER_FIELDS = `
+  _id,
+  title_en,
+  title_ar,
+  description_en,
+  description_ar,
+  image,
+  link,
+  order,
+  active
+`;
+
+/** Active ad banners, ordered for the homepage carousel */
+export async function getActiveAds(locale: Locale): Promise<ResolvedAd[]> {
+  const query = `*[_type == "adBanner" && active == true] | order(order asc) {
+    ${AD_BANNER_FIELDS}
+  }`;
+  const raw: SanityAdBanner[] = await sanityClient.fetch(
+    query,
+    {},
+    { next: { revalidate: 300 } },
+  );
+  return raw.map((a) => resolveAdBanner(a, locale));
 }
 
 // ─── Site Settings ────────────────────────────────────────────────────────────
